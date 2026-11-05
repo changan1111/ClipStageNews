@@ -1085,7 +1085,18 @@ kbd {
     order: 1;
     flex: 1 0 100%;
     margin-left: 0;
+    max-width: none;
     text-align: left;
+  }
+}
+
+@media (min-width: 1281px) and (max-width: 1440px) {
+  .indexer-status {
+    max-width: 230px;
+    white-space: normal;
+  }
+  .indexer-status .last-run {
+    display: block;
   }
 }
 
@@ -1610,7 +1621,7 @@ async function loadIndexerStatus() {
       statusEl.className = 'indexer-status idle';
 
       statusEl.innerHTML =
-        `Indexer: <strong>idle</strong> · Last run: ` +
+        `Indexer: <strong>idle</strong> <span class="last-run">Last run: ` +
         `${formatIndexerDate(s.last_finished_at * 1000)}` +
         (s.last_duration_s != null
           ? ` · took ${formatIndexerDuration(s.last_duration_s)}`
@@ -1620,7 +1631,8 @@ async function loadIndexerStatus() {
           : '') +
         (s.last_total != null
           ? ` · ${s.last_total.toLocaleString()} clips`
-          : '');
+          : '') +
+        `</span>`;
       return;
     }
 
