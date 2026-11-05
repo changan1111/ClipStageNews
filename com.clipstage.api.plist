@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Template: install with  bash install_api_service.sh  (it fills in __CLIPSTAGE_HOME__). -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.clipstage.api</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/bash</string>
+    <string>__CLIPSTAGE_HOME__/start_clipstage.sh</string>
+  </array>
+  <key>WorkingDirectory</key><string>__CLIPSTAGE_HOME__</string>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <!-- Wait 30s before restarting, so a failure (e.g. NAS offline) does not spin. -->
+  <key>ThrottleInterval</key><integer>30</integer>
+  <!-- Typesense is started by start_clipstage.sh; keep it alive if the API restarts. -->
+  <key>AbandonProcessGroup</key><true/>
+  <key>StandardOutPath</key><string>__CLIPSTAGE_HOME__/api.log</string>
+  <key>StandardErrorPath</key><string>__CLIPSTAGE_HOME__/api.log</string>
+</dict></plist>

@@ -1,0 +1,4 @@
+fastapi>=0.110
+uvicorn>=0.29
+typesense>=0.21
+requests>=2.31

@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "Only needed for the optional browser smoke test (tests/ui_smoke.mjs)",
+  "devDependencies": {
+    "jsdom": "^24.1.3"
+  }
+}

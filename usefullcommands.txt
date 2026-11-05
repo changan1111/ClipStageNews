@@ -1,0 +1,196 @@
+#Installation:
+
+py -m pip install -r requirements.txt
+
+
+
+
+#Supabase side verification:
+
+curl -i "https://neemkbqcwjwlxtuetqvo.supabase.co/auth/v1/health" \
+  -H "apikey: YOUR_ANON_KEY"
+
+
+# 1. Does login itself work? (expect HTTP 200 and an access_token)
+curl -s -i -X POST "https://neemkbqcwjwlxtuetqvo.supabase.co/auth/v1/token?grant_type=password" \
+  -H "apikey: YOUR_ANON_KEY" -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"yourpassword"}'
+
+# 2. Then, with the access_token from step 1, can that user read the profile?
+curl -s -i "https://neemkbqcwjwlxtuetqvo.supabase.co/rest/v1/clipstage_profiles?select=role,valid_through" \
+  -H "apikey: YOUR_ANON_KEY" -H "Authorization: Bearer ACCESS_TOKEN"
+
+
+
+
+
+cd ~/Documents/ClipStage
+TOKEN=$(curl -s -X POST "https://neemkbqcwjwlxtuetqvo.supabase.co/auth/v1/token?grant_type=password" \
+  -H "apikey: YOUR_ANON_KEY" -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"YOUR_PASSWORD"}' \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+
+curl -s -i "https://neemkbqcwjwlxtuetqvo.supabase.co/rest/v1/clipstage_profiles?select=role,valid_through" \
+  -H "apikey: YOUR_ANON_KEY" -H "Authorization: Bearer $TOKEN"
+
+
+#if above two are workign fine but still unable to login use this;
+
+
+drop policy if exists "clipstage_profiles_admin_manage" on public.clipstage_profiles;
+
+
+select policyname, cmd, qual
+from pg_policies
+where tablename = 'clipstage_profiles';
+
+
+cd ~/Documents/ClipStage
+# stop the hand-typed uvicorn tab (Ctrl+C), then:
+./start_clipstage.sh
+#(or)
+bash start_clipstage.sh
+
+
+
+curl -s localhost:8108/health
+KEY=$(grep '^TYPESENSE_KEY=' .env | cut -d= -f2-)
+curl -s -i "localhost:8108/collections" -H "X-TYPESENSE-API-KEY: $KEY"
+
+
+#Bash cannot run a Python script. Use the environment-loading wrapper:
+cd ~/Documents/ClipStage
+bash -c '. ./clipstage_env.sh && "$PYTHON" migrate_to_v2.py'
+
+#(or)
+bash clipstage_run.sh migrate_to_v2.py
+
+
+cd ~/Documents/ClipStage
+bash nightly_index.sh
+
+
+cd ~/Documents/ClipStage
+bash manual_index.sh
+
+
+Duplicate:
+
+./clipstage_run.sh fix_volume_case.py
+./clipstage_run.sh fix_volume_case.py --apply
+
+
+
+bash install_mountwatch.sh
+launchctl print gui/$(id -u)/com.clipstage.mountwatch | grep -i interval
+
+
+
+date
+diskutil unmount "/Volumes/EDIT2"
+
+ls /Volumes
+
+
+tail -f mount_watch.log
+
+
+
+launchctl kickstart -k gui/$(id -u)/com.clipstage.mountwatch
+sleep 15
+tail -n 12 mount_watch.log
+
+
+chmod 600 clipstage_env.sh .env.
+
+
+
+
+
+
+
+
+
+//scheduler fix..
+
+
+[4:27 pm, 24/10/2026] Chandru: launchctl bootout gui/$(id -u)/com.clipstage.indexer
+launchctl enable gui/$(id -u)/com.clipstage.indexer
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.clipstage.indexer.plist
+launchctl print gui/$(id -u)/com.clipstage.indexer | grep -E "state|runs"
+
+
+[4:27 pm, 24/10/2026] Chandru: chmod 644 ~/Library/LaunchAgents/com.clipstage.indexer.plist
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.clipstage.indexer.plist
+[4:27 pm, 24/10/2026] Chandru: ls -l ~/Library/LaunchAgents /Library/LaunchAgents | grep -i clip
+
+
+
+[4:27 pm, 24/10/2026] Chandru: sudo launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.clipstage.indexer.plist
+
+
+[4:27 pm, 24/10/2026] Chandru: cd ~/Library/LaunchAgents
+
+sed 's/com.clipstage.indexer/com.clipstage.nightly/' com.clipstage.indexer.plist > com.clipstage.nightly.plist
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.clipstage.nightly.plist
+launchctl print gui/$(id -u)/com.clipstage.nightly | grep -E "state|runs"
+
+
+[4:27 pm, 24/10/2026] Chandru: rm ~/Library/LaunchAgents/com.clipstage.indexer.plist
+
+[4:27 pm, 24/10/2026] Chandru: plutil -p ~/Library/LaunchAgents/com.clipstage.nightly.plist | grep -E "Hour|Minute"
+[4:27 pm, 24/10/2026] Chandru: cat ~/clipstage-heartbeat.log
+tail -20 ~/Documents/ClipStage/indexer.log
+
+
+[4:27 pm, 24/10/2026] Chandru: grep -E "Scheduled index|Finished" ~/Documents/ClipStage/indexer.log | tail -12
+[4:27 pm, 24/10/2026] Chandru: P=~/Library/LaunchAgents/com.clipstage.nightly.plist
+plutil -replace StartCalendarInterval.Hour -integer $(date -v+10M +%-H) $P
+plutil -replace StartCalendarInterval.Minute -integer $(date -v+10M +%-M) $P
+launchctl bootout gui/$(id -u)/com.clipstage.nightly
+launchctl bootstrap gui/$(id -u) $P
+plutil -p $P | grep -E "Hour|Minute"; date
+
+
+[4:27 pm, 24/10/2026] Chandru: tail -3 ~/Documents/ClipStage/indexer.log
+launchctl print gui/$(id -u)/com.clipstage.nightly | grep -E "state|runs"
+
+[4:27 pm, 24/10/2026] Chandru: launchctl bootout gui/$(id -u)/com.clipstage.nightly
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.clipstage.nightly.plist
+plutil -p ~/Library/LaunchAgents/com.clipstage.nightly.plist | grep -E "Hour|Minute"
+
+
+[4:27 pm, 24/10/2026] Chandru: launchctl kill SIGTERM gui/$(id -u)/com.clipstage.nightly
+pkill -f indexer.py
+pkill -f generate_thumbs.py
+
+
+[4:27 pm, 24/10/2026] Chandru: P=~/Library/LaunchAgents/com.clipstage.nightly.plist
+plutil -replace StartCalendarInterval.Hour -integer 16 $P
+plutil -replace StartCalendarInterval.Minute -integer 30 $P
+launchctl bootout gui/$(id -u)/com.clipstage.nightly
+launchctl bootstrap gui/$(id -u) $P
+plutil -p $P | grep -E "Hour|Minute"
+
+
+[4:27 pm, 24/10/2026] Chandru: P=~/Library/LaunchAgents/com.clipstage.nightly.plist
+plutil -replace StartCalendarInterval -json '[{"Hour":0,"Minute":0},{"Hour":6,"Minute":0},{"Hour":12,"Minute":0},{"Hour":18,"Minute":0}]' $P
+launchctl bootout gui/$(id -u)/com.clipstage.nightly
+launchctl bootstrap gui/$(id -u) $P
+plutil -p $P | grep -E "Hour|Minute"
+
+
+
+
+if electron app not working:
+
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ~/Desktop/root.crt
+
+security verify-cert -c ~/Desktop/root.crt
+
+sudo xattr -cr /Applications/ClipStage.app
+
+sudo codesign --force --deep --sign - /Applications/ClipStage.app
+
+
+osascript -e 'quit app "ClipStage"'; sudo /usr/libexec/PlistBuddy -c "Add :NSLocalNetworkUsageDescription string 'ClipStage connects to the NAS on your local network.'" /Applications/ClipStage.app/Contents/Info.plist 2>/dev/null; sudo xattr -cr /Applications/ClipStage.app && sudo codesign --force --deep --sign - /Applications/ClipStage.app && sudo tccutil reset All "$(defaults read /Applications/ClipStage.app/Contents/Info CFBundleIdentifier)" && echo "DONE - now restart the Mac"

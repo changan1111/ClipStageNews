@@ -1,0 +1,8 @@
+{
+  "name": "clipstage-fcp-drag",
+  "version": "1.0.0",
+  "description": "ClipStage window with native drag-to-Final Cut Pro",
+  "main": "main.js",
+  "scripts": { "start": "electron ." },
+  "devDependencies": { "electron": "^33.0.0" }
+}

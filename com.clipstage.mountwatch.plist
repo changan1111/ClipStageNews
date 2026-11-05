@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Template: install with  bash install_mountwatch.sh  (it fills in __CLIPSTAGE_HOME__). -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.clipstage.mountwatch</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/bash</string>
+    <string>__CLIPSTAGE_HOME__/mount_watch.sh</string>
+  </array>
+  <key>WorkingDirectory</key><string>__CLIPSTAGE_HOME__</string>
+  <!-- Every 5 minutes. Change to taste (seconds) and reinstall to apply. -->
+  <key>StartInterval</key><integer>300</integer>
+  <key>StandardOutPath</key><string>__CLIPSTAGE_HOME__/mount_watch.log</string>
+  <key>StandardErrorPath</key><string>__CLIPSTAGE_HOME__/mount_watch.log</string>
+</dict></plist>

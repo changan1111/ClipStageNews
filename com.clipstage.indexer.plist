@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Template: install with  bash install_nightly.sh  (it fills in __CLIPSTAGE_HOME__). -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.clipstage.indexer</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/bash</string>
+    <string>__CLIPSTAGE_HOME__/nightly_index.sh</string>
+  </array>
+  <key>WorkingDirectory</key><string>__CLIPSTAGE_HOME__</string>
+  <key>StartCalendarInterval</key><dict>
+    <key>Hour</key><integer>17</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+  <!-- If the indexer had to start Typesense, keep it alive after this job ends. -->
+  <key>AbandonProcessGroup</key><true/>
+  <key>StandardOutPath</key><string>__CLIPSTAGE_HOME__/launchd.log</string>
+  <key>StandardErrorPath</key><string>__CLIPSTAGE_HOME__/launchd.log</string>
+</dict></plist>

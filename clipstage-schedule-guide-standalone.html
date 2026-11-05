@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Run the ClipStage index at a set time and prove it ran</title>
+<style>
+:root {
+  --bg: #f1f5f6;
+  --surface: #ffffff;
+  --ink: #14232b;
+  --muted: #566870;
+  --line: #d3dde1;
+  --accent: #0d6574;
+  --code-bg: #0f1e26;
+  --code-ink: #d6edf1;
+  --note-bg: #e3f0f2;
+  --warn-bg: #fbefd9;
+  --warn-line: #d9a441;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1519;
+    --surface: #141f25;
+    --ink: #e5eef1;
+    --muted: #93a6ae;
+    --line: #25353d;
+    --accent: #5cc3d3;
+    --code-bg: #091217;
+    --code-ink: #d6edf1;
+    --note-bg: #14282e;
+    --warn-bg: #2b2412;
+    --warn-line: #a47a22;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1519;
+  --surface: #141f25;
+  --ink: #e5eef1;
+  --muted: #93a6ae;
+  --line: #25353d;
+  --accent: #5cc3d3;
+  --code-bg: #091217;
+  --code-ink: #d6edf1;
+  --note-bg: #14282e;
+  --warn-bg: #2b2412;
+  --warn-line: #a47a22;
+  color-scheme: dark;
+}
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+main { max-width: 44rem; margin: 0 auto; padding: 2rem 1.1rem 3rem; }
+h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 0.75rem; font-weight: 600; letter-spacing: -0.01em; }
+h2 { font-size: 1.25rem; margin: 2.5rem 0 0.75rem; font-weight: 600; }
+h3 { font-size: 1.05rem; margin: 0 0 0.5rem; font-weight: 600; }
+p { margin: 0 0 0.85rem; }
+.lead { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.25rem; }
+ul { margin: 0 0 0.85rem; padding-left: 1.2rem; }
+li { margin-bottom: 0.35rem; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.88em; background: var(--note-bg); padding: 0.1em 0.35em; border-radius: 4px; }
+pre {
+  margin: 0.4rem 0 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+.box { background: var(--note-bg); border-left: 4px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin: 0 0 1rem; }
+.box.warn { background: var(--warn-bg); border-left-color: var(--warn-line); }
+.box p:last-child, .box ul:last-child { margin-bottom: 0; }
+ol.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; }
+ol.steps > li {
+  counter-increment: step;
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem 1rem 0.5rem 3.1rem;
+  margin-bottom: 0.9rem;
+}
+ol.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0.9rem;
+  top: 1rem;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.faults { list-style: none; padding: 0; }
+.faults li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 0.7rem; }
+.faults strong { display: block; margin-bottom: 0.2rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Run the ClipStage index at a set time and prove it ran</h1>
+  <p class="lead">ClipStage’s index job is scheduled by a macOS launchd agent. These steps set your time, add a log that shows whether the job fired, and test the schedule before you rely on it.</p>
+
+  <div class="box">
+    <p><strong>Before you start</strong></p>
+    <ul>
+      <li>Run every command in Terminal on the Mac that hosts ClipStage.</li>
+      <li>That Mac must be on, awake and logged in at the scheduled time.</li>
+      <li>Commands assume the project is in <code>~/Documents/ClipStage</code>. Adjust the path if yours differs.</li>
+    </ul>
+  </div>
+
+  <h2>Steps</h2>
+  <ol class="steps">
+    <li>
+      <h3>Add a heartbeat line to the script</h3>
+      <p>Open the script:</p>
+<pre><code>cd ~/Documents/ClipStage
+nano nightly_index.sh</code></pre>
+      <p>Paste this as line 2, directly under <code>#!/bin/bash</code>:</p>
+<pre><code>echo "$(date '+%F %T') fired (user=$(id -un))" &gt;&gt; "$HOME/clipstage-heartbeat.log"</code></pre>
+      <p>It writes to your home folder, which macOS doesn’t block, so it records every launch even if the project folder is blocked. The top of the file should now look like this:</p>
+<pre><code>#!/bin/bash
+echo "$(date '+%F %T') fired (user=$(id -un))" &gt;&gt; "$HOME/clipstage-heartbeat.log"
+# ClipStage v5.0 - scheduled index ...</code></pre>
+      <p>Save with Ctrl+O, Enter, then exit with Ctrl+X.</p>
+    </li>
+
+    <li>
+      <h3>Check the current time</h3>
+<pre><code>date</code></pre>
+    </li>
+
+    <li>
+      <h3>Set a test time and a safe log path</h3>
+<pre><code>nano com.clipstage.indexer.plist</code></pre>
+      <p>Set the time to about 3 minutes from now, on a 24-hour clock. If <code>date</code> says 14:07, use hour 14 and minute 10:</p>
+<pre><code>&lt;key&gt;Hour&lt;/key&gt;&lt;integer&gt;14&lt;/integer&gt;
+&lt;key&gt;Minute&lt;/key&gt;&lt;integer&gt;10&lt;/integer&gt;</code></pre>
+      <p>In the same file, change both log paths from <code>__CLIPSTAGE_HOME__/launchd.log</code> to a location macOS doesn’t block:</p>
+<pre><code>&lt;key&gt;StandardOutPath&lt;/key&gt;&lt;string&gt;/tmp/clipstage-launchd.log&lt;/string&gt;
+&lt;key&gt;StandardErrorPath&lt;/key&gt;&lt;string&gt;/tmp/clipstage-launchd.log&lt;/string&gt;</code></pre>
+      <p>Save and exit.</p>
+    </li>
+
+    <li>
+      <h3>Install it</h3>
+<pre><code>bash install_nightly.sh</code></pre>
+      <p>Editing the plist alone does nothing. launchd reads a copy in <code>~/Library/LaunchAgents</code>, and this script refreshes that copy.</p>
+    </li>
+
+    <li>
+      <h3>Confirm launchd loaded your time</h3>
+<pre><code>plutil -p ~/Library/LaunchAgents/com.clipstage.indexer.plist | grep -E "Hour|Minute"</code></pre>
+      <p>It should print your test hour and minute.</p>
+    </li>
+
+    <li>
+      <h3>Wait for the test time, then read the logs</h3>
+<pre><code>cat ~/clipstage-heartbeat.log
+tail -20 indexer.log
+cat /tmp/clipstage-launchd.log</code></pre>
+      <ul>
+        <li><strong>Heartbeat line is there:</strong> the schedule works. Read <code>indexer.log</code> for any other error.</li>
+        <li><strong>No heartbeat:</strong> launchd or macOS didn’t start the job. Share the contents of <code>/tmp/clipstage-launchd.log</code>.</li>
+      </ul>
+      <div class="box warn">
+        <p>Don’t use <code>launchctl kickstart</code> for this test. It starts the job immediately, so it doesn’t prove the schedule works.</p>
+      </div>
+    </li>
+
+    <li>
+      <h3>Set your real time</h3>
+      <p>Repeat steps 3 and 4, changing only <code>Hour</code> and <code>Minute</code>. For 2:30 AM:</p>
+<pre><code>&lt;key&gt;Hour&lt;/key&gt;&lt;integer&gt;2&lt;/integer&gt;
+&lt;key&gt;Minute&lt;/key&gt;&lt;integer&gt;30&lt;/integer&gt;</code></pre>
+<pre><code>bash install_nightly.sh</code></pre>
+      <p>The next morning, run <code>cat ~/clipstage-heartbeat.log</code> to confirm it fired overnight.</p>
+    </li>
+  </ol>
+
+  <h2>Optional: keep the Mac awake for the run</h2>
+  <p>A sleeping Mac won’t wake for the job, and a powered-off Mac skips it. This wakes or starts the Mac 5 minutes before a 2:30 AM run:</p>
+<pre><code>sudo pmset repeat wakeorpoweron MTWRFSU 02:25:00</code></pre>
+
+  <h2>If it still doesn’t run</h2>
+  <ul class="faults">
+    <li>
+      <strong>Job isn’t loaded</strong>
+      Run <code>launchctl print gui/$(id -u)/com.clipstage.indexer</code>. If it says “Could not find service”, run <code>bash install_nightly.sh</code>.
+    </li>
+    <li>
+      <strong>No heartbeat, and the launchd log says “Operation not permitted”</strong>
+      macOS is blocking <code>~/Documents</code> for background jobs. Move the folder to <code>~/ClipStage</code> and re-run <code>bash install_nightly.sh</code>, or give <code>/bin/bash</code> Full Disk Access in System Settings.
+    </li>
+    <li>
+      <strong>Background item is switched off</strong>
+      In System Settings → General → Login Items &amp; Extensions, make sure ClipStage is allowed to run in the background.
+    </li>
+    <li>
+      <strong>Heartbeat is there, but <code>indexer.log</code> shows an error</strong>
+      <ul>
+        <li>“TYPESENSE_KEY is not set”: <code>.env</code> is missing or not next to the scripts.</li>
+        <li>“Typesense did not start”: check <code>/tmp/typesense.log</code>.</li>
+        <li>“Indexer already running”: a stale <code>index_status.json</code>, or someone is running Sync Index from the app.</li>
+        <li>“No matching volume is mounted”: the NAS didn’t mount, or macOS is blocking network volumes for <code>/bin/bash</code>.</li>
+      </ul>
+    </li>
+  </ul>
+</main>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# HTTPS for ClipStage on the LAN.  Copy to /opt/homebrew/etc/Caddyfile (or run: caddy run --config Caddyfile.sample)
+#
+# 1. brew install caddy
+# 2. Replace clipstage.lan with a name your editors' computers can resolve
+#    (a DNS entry on the router, or the Mac's Bonjour name such as janam-mac.local).
+# 3. On the server:  caddy trust        (trusts Caddy's private certificate authority here)
+# 4. On EVERY editor computer: install Caddy's root certificate once and mark it "Always Trust":
+#      ~/Library/Application Support/Caddy/pki/authorities/local/root.crt   (on the server)
+#    Without this step browsers show a certificate warning.
+# 5. In .env set:  CLIPSTAGE_BIND_HOST=127.0.0.1   and   CLIPSTAGE_COOKIE_SECURE=1
+#
+# If port 443 cannot be bound, use  clipstage.lan:8443  and browse to https://clipstage.lan:8443
+clipstage.lan {
+    tls internal
+    encode gzip
+    # /stream is a long-lived video response; do not buffer it
+    reverse_proxy 127.0.0.1:8000 {
+        flush_interval -1
+    }
+    # Add ONLY after https works for everyone (browsers then refuse plain http for this name):
+    # header Strict-Transport-Security "max-age=31536000"
+}

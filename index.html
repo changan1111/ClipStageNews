@@ -1,0 +1,2786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipStage</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg:           #ffffff;
+  --surface:      #f5f7fa;
+  --surface2:     #eef1f6;
+  --border:       #d7dde6;
+  --accent:       #b5790c;
+  --accent-dim:   rgba(181,121,12,0.10);
+  --accent-border:rgba(181,121,12,0.30);
+  --blue-bright:  #1d6fd6;
+  --green:        #1f9d5c;
+  --red:          #d6433f;
+  --muted:        #5b6b7f;
+  --text:         #2a3340;
+  --text-bright:  #11161d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 34px);
+  overflow: hidden;
+}
+
+/* ── LOGIN OVERLAY ── */
+.auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(10, 15, 20, 0.78);
+  backdrop-filter: blur(5px);
+}
+.auth-gate[hidden] { display: none; }
+.auth-gate .login-box {
+  width: min(420px, calc(100vw - 32px));
+  min-width: 0;
+  text-align: left;
+}
+.auth-gate .login-box h2 { margin-bottom: 12px; }
+.auth-gate .login-box p {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+.auth-gate .login-box label {
+  display: block;
+  text-align: left;
+  color: var(--muted);
+  font-size: 11px;
+  margin: 12px 0 6px;
+}
+.auth-gate .login-box input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-bright);
+  font: inherit;
+  font-size: 14px;
+  padding: 11px 12px;
+  outline: none;
+}
+.auth-gate .login-box input:focus { border-color: var(--accent); }
+.auth-error {
+  min-height: 20px;
+  margin: 12px 0 8px;
+  color: var(--red);
+  font-size: 12px;
+  text-align: left;
+}
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 48px;
+  min-width: 340px;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.12);
+}
+.login-logo {
+  height: 70px;
+  margin-bottom: 24px;
+}
+.login-box h2 {
+  font-size: 13px;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 3px;
+  color: var(--accent);
+  margin-bottom: 28px;
+  text-transform: uppercase;
+}
+.login-box select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-bright);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+.login-box select:focus { border-color: var(--accent); }
+.login-box button {
+  width: 100%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: opacity .15s;
+}
+.login-box button:disabled { opacity: .35; cursor: not-allowed; }
+.login-box button:hover:not(:disabled) { opacity: .88; }
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.header-logo {
+  height: 44px;
+  width: 44px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.brand { display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; line-height: 1.15; }
+.brand-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 15px; font-weight: 700; letter-spacing: 3px;
+  color: var(--text-bright); white-space: nowrap;
+}
+.brand-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 1.5px; margin-top: 3px;
+  color: var(--accent); white-space: nowrap;
+}
+.header-divider {
+  width: 1px; height: 32px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.app-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.app-label span {
+  color: var(--muted);
+  font-weight: 400;
+  display: block;
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+.indexer-status {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+}
+.indexer-status strong { color: var(--text); }
+.indexer-status.running strong { color: var(--accent); }
+.indexer-status.failed strong { color: var(--red); }
+
+.search-wrap {
+  flex: 1;
+  position: relative;
+  max-width: 560px;
+}
+.search-wrap svg {
+  position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+#searchInput {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px 9px 40px;
+  color: var(--text-bright);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .15s;
+}
+#searchInput:focus { border-color: var(--accent); }
+#searchInput::placeholder { color: var(--muted); }
+
+.header-right {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+
+/* View toggle */
+.view-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.view-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+  display: flex; align-items: center;
+}
+.view-btn.active {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.sort-toggle {
+  display: none;
+}
+
+.list-table-head {
+  display: grid;
+  grid-template-columns: 80px 16px 1fr 80px 90px 80px 110px 90px 40px 40px 28px;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 2;
+}
+.col-sort {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 0;
+}
+.col-sort:hover { color: var(--text-bright); }
+.col-sort.active { color: var(--accent); }
+.col-sort svg {
+  opacity: 0;
+  transition: opacity .12s, transform .15s;
+}
+.col-sort.active svg { opacity: 1; }
+.col-sort.active.desc svg { transform: rotate(180deg); }
+
+mark {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-radius: 2px;
+  padding: 0 1px;
+  font-weight: 700;
+}
+
+/* ── EDIT / NOTES BUTTON ── */
+.edit-btn {
+  position: absolute; top: 7px; left: 7px;
+  width: 22px; height: 22px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all .12s;
+  z-index: 2;
+}
+.edit-btn:hover { border-color: var(--accent); color: var(--accent); }
+.list-row .edit-btn { position: static; flex-shrink: 0; }
+.edit-btn.has-notes {
+  border-color: var(--accent);
+  color: #000;
+  background: var(--accent);
+}
+.edit-btn.has-notes:hover { opacity: .85; }
+
+.clip-notes {
+  font-size: 10.5px; color: var(--muted);
+  margin-top: 6px; padding-top: 6px;
+  border-top: 1px solid var(--border);
+  word-break: break-word; line-height: 1.4;
+  font-style: italic;
+}
+
+/* ── NOTES MODAL ── */
+#notesOverlay, #bulkNotesOverlay {
+  position: fixed; inset: 0;
+  background: rgba(20,30,45,0.45);
+  backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 10000;
+}
+#notesOverlay.visible, #bulkNotesOverlay.visible { display: flex; }
+.notes-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  width: 420px; max-width: 90vw;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.12);
+}
+.notes-box h3 {
+  font-size: 13px; color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 1px; margin-bottom: 4px;
+  word-break: break-all;
+}
+.notes-box .notes-sub { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+.notes-box textarea {
+  width: 100%; min-height: 110px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-bright);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; padding: 10px 12px;
+  outline: none; resize: vertical;
+}
+.notes-box textarea:focus { border-color: var(--accent); }
+.notes-actions {
+  display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;
+}
+.notes-actions button {
+  border: none; border-radius: 7px;
+  padding: 8px 16px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: opacity .15s;
+}
+.notes-actions button:hover { opacity: .88; }
+.notes-cancel { background: transparent; border: 1px solid var(--border) !important; color: var(--muted); }
+.notes-save { background: var(--accent); color: #000; }
+.notes-save:disabled { opacity: .4; cursor: not-allowed; }
+
+.sel-pill {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  display: none;
+}
+.sel-pill.visible { display: block; }
+
+#stageBtn {
+  background: var(--accent);
+  color: #000;
+  border: none; border-radius: 7px;
+  padding: 8px 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+  transition: opacity .15s, transform .1s;
+  display: none;
+}
+#stageBtn:hover { opacity: .88; }
+#stageBtn:active { transform: scale(.97); }
+#stageBtn.visible { display: block; }
+#stageBtn:disabled { opacity: .4; cursor: not-allowed; }
+
+#clearBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  white-space: nowrap;
+}
+#clearBtn:hover { border-color: var(--red); color: var(--red); }
+
+.editor-wrap {
+  display: flex; align-items: center; gap: 8px;
+}
+.user-box { display: flex; align-items: center; gap: 8px; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.user-box[hidden] { display: none; }
+.user-box .user-email { color: var(--text); max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.user-box .user-role { padding: 1px 6px; border: 1px solid var(--border); border-radius: 10px; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
+.user-box .user-role.admin { color: var(--accent); border-color: var(--accent); }
+#logoutBtn { background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); padding: 6px 10px; font-size: 12px; cursor: pointer; }
+#logoutBtn:hover { border-color: var(--red); color: var(--red); }
+.editor-label {
+  font-size: 10px; color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 1px; white-space: nowrap;
+}
+#editorSelect {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-bright);
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none; cursor: pointer;
+  min-width: 130px;
+}
+#editorSelect:focus { border-color: var(--accent); }
+#editorSelect.name-alert {
+  animation: editor-select-blink .5s ease-in-out 3;
+}
+@keyframes editor-select-blink {
+  0%, 100% { border-color: var(--border); box-shadow: none; background: var(--surface2); }
+  50%      { border-color: var(--red); box-shadow: 0 0 0 3px rgba(214,67,63,0.25); background: var(--red); color: #fff; }
+}
+
+/* ── BODY ── */
+.body {
+  display: flex; flex: 1; overflow: hidden;
+}
+
+/* ── RESULTS PANEL ── */
+.results-panel {
+  flex: 1; overflow-y: auto; padding: 14px 18px;
+}
+.results-panel::-webkit-scrollbar { width: 4px; }
+.results-panel::-webkit-scrollbar-track { background: transparent; }
+.results-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.results-meta {
+  font-size: 11px; color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* ── PAGINATION (250 / 500 clips per page) ── */
+.pager {
+  display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted);
+  margin: 10px 0;
+}
+.pager.show { display: flex; }
+.pager .pg-btns { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pager button {
+  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: 5px; padding: 4px 9px; font: inherit; cursor: pointer; min-width: 28px;
+}
+.pager button:hover:not(:disabled) { border-color: var(--accent); }
+.pager button.cur { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; cursor: default; }
+.pager button:disabled { opacity: .4; cursor: not-allowed; }
+.pager .pg-gap { padding: 0 2px; }
+.pager .pg-size { display: flex; align-items: center; gap: 6px; }
+.pager select {
+  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: 5px; padding: 3px 6px; font: inherit;
+}
+
+/* ── FACET SUMMARY CARD (counts per column) ── */
+.facet-card {
+  display: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 10px;
+  font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted);
+}
+.facet-card.show { display: block; }
+.facet-card summary { cursor: pointer; user-select: none; }
+.facet-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 6px; }
+.facet-row .fl { width: 58px; flex-shrink: 0; font-weight: 700; color: var(--text); }
+.facet-chip {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 2px 9px; color: var(--text); font: inherit; cursor: default;
+}
+.facet-chip b { color: var(--accent); font-weight: 700; margin-left: 4px; }
+.facet-chip.click { cursor: pointer; }
+.facet-chip.click:hover { border-color: var(--accent); }
+
+/* ── GRID VIEW ── */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.clip-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  position: relative;
+  overflow: hidden;
+}
+.clip-card:hover { border-color: rgba(232,160,32,0.45); }
+.clip-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+
+.clip-thumb {
+  width: 100%; aspect-ratio: 16/9;
+  background: #e9edf3;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.clip-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.clip-thumb .no-thumb {
+  font-size: 28px; color: var(--border);
+}
+.clip-check {
+  position: absolute; top: 7px; right: 7px;
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.75);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+  backdrop-filter: blur(4px);
+}
+.clip-card.selected .clip-check { background: var(--accent); border-color: var(--accent); }
+.clip-check svg { display: none; }
+.clip-card.selected .clip-check svg { display: block; }
+
+.clip-info {
+  padding: 10px 12px;
+}
+.clip-name {
+  font-size: 11px; font-weight: 600;
+  color: var(--text-bright);
+  word-break: break-all;
+  line-height: 1.35;
+  margin-bottom: 7px;
+  padding-right: 20px;
+}
+.clip-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+  margin-top: 6px;
+  padding-top: 7px;
+  border-top: 1px solid var(--border);
+}
+.clip-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  line-height: 1.3;
+  overflow: hidden;
+}
+.clip-meta-icon {
+  font-size: 10px;
+  flex-shrink: 0;
+  opacity: .7;
+}
+.clip-meta-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clip-meta-item.dur  .clip-meta-val { color: var(--blue-bright); }
+.clip-meta-item.date .clip-meta-val { color: var(--muted); }
+.clip-meta-item.size .clip-meta-val { color: #6b5810; font-weight: 600; }
+.clip-meta-item.cat  .clip-meta-val { color: var(--accent); }
+.clip-meta-item.vol  .clip-meta-val { color: var(--blue-bright); }
+.clip-meta-item.ext  .clip-meta-val { color: var(--muted); }
+.clip-path {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  word-break: break-all;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  opacity: .75;
+}
+.clip-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.clip-tag.dur { color: var(--blue-bright); border-color: rgba(77,166,255,0.3); }
+.clip-tag.size { color: #b0c8e0; }
+.clip-tag.cat { color: var(--accent); border-color: var(--accent-border); }
+.clip-tag.vol { color: #a0cfff; border-color: rgba(160,207,255,0.3); }
+
+/* ── LIST VIEW ── */
+.results-list {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.list-row {
+  display: grid;
+  grid-template-columns: 80px 16px 1fr 80px 90px 80px 110px 90px 40px 40px 28px;
+  gap: 12px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  position: relative;
+}
+.list-row:hover { border-color: rgba(232,160,32,0.4); }
+.list-row.selected { border-color: var(--accent); background: var(--accent-dim); }
+.list-thumb {
+  width: 80px; height: 45px; flex-shrink: 0;
+  background: #e9edf3;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border);
+}
+.list-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.list-thumb .no-thumb { font-size: 20px; color: var(--border); }
+.list-check {
+  width: 16px; height: 16px; flex-shrink: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.list-row.selected .list-check { background: var(--accent); border-color: var(--accent); }
+.list-check svg { display: none; }
+.list-row.selected .list-check svg { display: block; }
+.list-name {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-bright); word-break: break-all; line-height: 1.3;
+}
+.list-name-wrap { min-width: 0; }
+.list-path {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  word-break: break-all;
+  line-height: 1.3;
+  opacity: .75;
+  margin-top: 2px;
+}
+.list-col {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.list-col.size { color: #6b5810; font-weight: 600; }
+.list-col.cat  { color: var(--accent); }
+.list-col.vol  { color: #1d6fd6; }
+
+/* Empty / state screens */
+.state-screen {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 60vh; text-align: center;
+  gap: 12px;
+}
+.state-screen .icon { font-size: 48px; }
+.state-screen .title { font-size: 18px; font-weight: 600; color: var(--text-bright); }
+.state-screen .sub { font-size: 13px; color: var(--muted); max-width: 320px; line-height: 1.6; }
+
+/* spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+/* ── STAGING SIDEBAR ── */
+.staging-panel {
+  width: 280px; border-left: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+}
+.staging-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.staging-title {
+  font-size: 11px; font-weight: 700; color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 1.5px; margin-bottom: 3px;
+}
+.staging-sub { font-size: 11px; color: var(--muted); }
+
+.staging-list {
+  flex: 1; overflow-y: auto; padding: 10px;
+}
+.staging-list::-webkit-scrollbar { width: 3px; }
+.staging-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.staging-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: var(--text);
+  padding: 5px 4px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  word-break: break-all; line-height: 1.3;
+}
+.staging-card {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.staging-card:first-child {
+  background: rgba(0,150,80,0.06);
+  border-left: 3px solid var(--green);
+}
+.staging-card.sel { background: var(--accent-dim); box-shadow: inset 3px 0 0 var(--accent); }
+#stgSelBar { display:none; align-items:center; gap:10px; padding:4px 10px; font-size:10px; color:var(--muted); border-bottom:1px solid rgba(0,0,0,0.08); }
+#stgSelBar a { color:var(--accent); cursor:pointer; text-decoration:underline; }
+.stg-thumb {
+  width: 56px; height: 32px; flex-shrink: 0;
+  background: var(--surface2);
+  border-radius: 3px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); font-size: 13px;
+}
+.stg-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.stg-info { flex:1; min-width:0; }
+.stg-name {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-bright);
+  line-height: 1.3; word-break: break-all;
+}
+.stg-meta {
+  font-size: 9px; color: var(--muted);
+  margin-top: 2px; display: flex; gap: 5px; align-items: center;
+}
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.staging-empty {
+  font-size: 11px; color: var(--muted);
+  line-height: 1.7; text-align: center;
+  padding: 20px 8px;
+}
+
+.staging-footer {
+  border-top: 1px solid var(--border);
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.staging-path {
+  font-size: 9px; font-family: 'Space Mono', monospace;
+  color: var(--muted); line-height: 1.6;
+  word-break: break-all;
+}
+.staging-path strong { display: block; color: var(--accent); margin-bottom: 3px; }
+
+#openFinderBtn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 11px; font-weight: 600;
+  cursor: pointer; text-align: center;
+  transition: border-color .15s, color .15s;
+  display: none;
+  width: calc(100% - 28px);
+  margin: 8px 14px 0;
+}
+#openFinderBtn:hover { border-color: var(--accent); color: var(--accent); }
+#openFinderBtn.visible { display: block; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; top: 128px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  padding: 10px 22px; border-radius: 8px;
+  font-size: 13px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  opacity: 0; transition: all .25s;
+  pointer-events: none; z-index: 9000;
+  white-space: nowrap;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); z-index: 9999; }
+#toast.success { border-color: var(--green); color: var(--green); }
+#toast.error { border-color: var(--red); color: var(--red); }
+/* ══════════════════════════════════════════════════════
+   CLIP USAGE STARS  (#17)
+   ══════════════════════════════════════════════════════ */
+.star-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  font-size: 10px;
+  color: var(--accent);
+  line-height: 1;
+  flex-shrink: 0;
+}
+.star-badge.tier1 { color: #c8a030; }   /* ★       — staged 1–4× */
+.star-badge.tier2 { color: #e8a020; }   /* ★★      — staged 5–14× */
+.star-badge.tier3 { color: #ff8c00; }   /* ★★★     — staged 15+× */
+.clip-name .star-badge { margin-left: 5px; }
+.list-col.stars { font-size: 11px; color: var(--accent); }
+   Toggle body.dark to switch palette
+   ══════════════════════════════════════════════════════ */
+body.dark {
+  --bg:           #001a3a;
+  --surface:      #002155;
+  --surface2:     #00297a;
+  --border:       #0040b0;
+  --accent:       #e8a020;
+  --accent-dim:   rgba(232,160,32,0.12);
+  --accent-border:rgba(232,160,32,0.28);
+  --blue-bright:  #4da6ff;
+  --green:        #2ecc7a;
+  --red:          #f05a5a;
+  --muted:        #7ba8d4;
+  --text:         #c8dff0;
+  --text-bright:  #eef4ff;
+}
+body.midnight {
+  --bg:           #0a0a0f;
+  --surface:      #111118;
+  --surface2:     #1a1a24;
+  --border:       #2a2a3a;
+  --accent:       #e8a020;
+  --accent-dim:   rgba(232,160,32,0.10);
+  --accent-border:rgba(232,160,32,0.25);
+  --blue-bright:  #5ba3ff;
+  --green:        #2ecc7a;
+  --red:          #f05a5a;
+  --muted:        #606070;
+  --text:         #a0a0b8;
+  --text-bright:  #e0e0f0;
+}
+body.dark .list-row:hover     { border-color: rgba(232,160,32,0.4); }
+body.dark .clip-card:hover    { border-color: rgba(232,160,32,0.45); }
+body.dark .edit-btn           { background: rgba(0,10,30,0.7); }
+body.dark .clip-check         { background: rgba(0,10,30,0.7); }
+body.dark .list-check         { background: var(--surface2); }
+body.dark .list-thumb         { background: #001230; }
+body.dark .clip-thumb         { background: #001230; }
+body.dark .login-box          { box-shadow: 0 24px 64px rgba(0,0,0,0.6); }
+body.dark .notes-box          { box-shadow: 0 24px 64px rgba(0,0,0,0.6); }
+body.dark #notesOverlay       { background: rgba(0,10,30,0.75); }
+body.dark .list-col.size      { color: #d4a820; }
+body.dark .header-border-b    { border-bottom-color: rgba(0,64,176,0.3); }
+
+/* Theme toggle button */
+.theme-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  padding: 6px 9px;
+  cursor: pointer;
+  display: flex; align-items: center;
+  transition: color .12s, border-color .12s;
+  flex-shrink: 0;
+}
+.theme-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+
+/* ══════════════════════════════════════════════════════
+   FILTER PANEL  (#3)
+   ══════════════════════════════════════════════════════ */
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transition: color .12s, border-color .12s, background .12s;
+  flex-shrink: 0;
+}
+.filter-btn:hover  { color: var(--text-bright); border-color: var(--border); }
+.filter-btn.active { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+.filter-btn .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); display: none;
+}
+.filter-btn.has-filters .dot { display: inline-block; }
+
+.filter-panel {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .2s ease, padding .2s ease;
+}
+.filter-panel.open {
+  max-height: 120px;
+  padding: 12px 20px;
+}
+.filter-row {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.filter-group {
+  display: flex; align-items: center; gap: 8px;
+}
+.filter-group label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; letter-spacing: 1px;
+  color: var(--muted); white-space: nowrap;
+}
+.filter-group select, .filter-group input[type="range"] {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-bright);
+  font-size: 12px;
+  padding: 5px 8px;
+  outline: none; cursor: pointer;
+}
+.filter-group select:focus { border-color: var(--accent); }
+.filter-group input[type="number"] {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-bright);
+  font-size: 12px;
+  padding: 5px 8px;
+  width: 72px; outline: none;
+}
+.filter-group input[type="number"]:focus { border-color: var(--accent); }
+.filter-reset {
+  background: transparent;
+  border: none; color: var(--muted);
+  font-size: 11px; cursor: pointer;
+  padding: 4px 8px; border-radius: 4px;
+}
+.filter-reset:hover { color: var(--red); }
+
+/* ══════════════════════════════════════════════════════
+   BULK NOTES + REMOVE  (#4 #5)
+   ══════════════════════════════════════════════════════ */
+#bulkNotesBtn {
+  display: none;
+}
+#bulkNotesBtn.visible { display: flex; align-items: center; gap: 5px; }
+#removeBtn {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--red);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  align-items: center; gap: 5px;
+  transition: background .12s;
+}
+#removeBtn:hover { background: rgba(214,67,63,0.1); }
+#removeBtn.visible { display: flex; }
+
+/* ══════════════════════════════════════════════════════
+   KEYBOARD SHORTCUT HINT
+   ══════════════════════════════════════════════════════ */
+.kbd-hint {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; flex-wrap: wrap;
+  background: var(--surface2);
+  border-top: 2px solid var(--accent);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; letter-spacing: .5px;
+  color: var(--text);
+  padding: 7px 12px;
+  pointer-events: none;
+  z-index: 500;
+}
+kbd {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 10px;
+  color: var(--text-bright);
+}
+
+/* ── VIDEO PLAYER MODAL ── */
+#playerModal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92); z-index: 9999;
+  align-items: center; justify-content: center; flex-direction: column;
+}
+#playerModal.open { display: flex; }
+#playerWrap {
+  position: relative; background: #000;
+  border-radius: 10px; overflow: hidden;
+  max-width: 90vw; max-height: 80vh;
+}
+#playerVideo { display: block; max-width: 90vw; max-height: 80vh; }
+#playerTitle {
+  color: #fff; font-size: 13px; margin-top: 12px; opacity: 0.7;
+  max-width: 90vw; text-align: center; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+#playerClose {
+  position: absolute; top: 10px; right: 14px;
+  background: rgba(0,0,0,0.6); border: none; color: #fff;
+  font-size: 20px; cursor: pointer; border-radius: 50%;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center; z-index: 10;
+}
+#playerClose:hover { background: rgba(255,255,255,0.2); }
+.play-btn {
+  position: absolute; bottom: 6px; right: 6px;
+  background: rgba(0,0,0,0.7); border: none; color: #fff;
+  border-radius: 50%; width: 32px; height: 32px; font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s; z-index: 3;
+}
+.clip-card:hover .play-btn, .list-row:hover .play-btn { opacity: 1; }
+
+</style>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <form class="login-box" id="authForm">
+    <h2 id="authTitle">ClipStage Login</h2>
+    <p>Sign in with your newsroom account to continue.</p>
+    <label for="authEmail">Email</label>
+    <input id="authEmail" name="email" type="email" autocomplete="username" required>
+    <label for="authPassword">Password</label>
+    <input id="authPassword" name="password" type="password" autocomplete="current-password" required>
+    <div id="authError" class="auth-error" role="alert" aria-live="polite"></div>
+    <button id="authSubmit" type="submit">Sign in</button>
+  </form>
+</div>
+
+<!-- MAIN HEADER -->
+<div class="header">
+  <img class="header-logo" src="data:image/png;base64,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" alt="ClipStage">
+  <div class="brand">
+    <div class="brand-title">CLIP STAGE</div>
+    <div class="brand-sub">Search &bull; Stage &bull; Edit</div>
+  </div>
+
+  <div class="search-wrap">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input id="searchInput" type="text" placeholder="Search clips — filename, tag, category…" autocomplete="off"
+      oninput="onSearch(this.value)">
+  </div>
+
+  <div class="header-right">
+    <!-- Theme selector (#11) -->
+    <select id="themeSelect" onchange="applyThemeByName(this.value)" title="Choose theme" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;padding:6px 8px;cursor:pointer;outline:none;">
+      <option value="light">☀ Light</option>
+      <option value="dark">🌙 Dark</option>
+      <option value="midnight">🌑 Midnight</option>
+    </select>
+
+    <!-- View toggle -->
+    <div class="view-toggle">
+      <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grid view">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M1 2.5A1.5 1.5 0 012.5 1h3A1.5 1.5 0 017 2.5v3A1.5 1.5 0 015.5 7h-3A1.5 1.5 0 011 5.5v-3zM9 2.5A1.5 1.5 0 0110.5 1h3A1.5 1.5 0 0115 2.5v3A1.5 1.5 0 0113.5 7h-3A1.5 1.5 0 019 5.5v-3zM1 10.5A1.5 1.5 0 012.5 9h3A1.5 1.5 0 017 10.5v3A1.5 1.5 0 015.5 15h-3A1.5 1.5 0 011 13.5v-3zM9 10.5A1.5 1.5 0 0110.5 9h3A1.5 1.5 0 0115 10.5v3A1.5 1.5 0 0113.5 15h-3A1.5 1.5 0 019 13.5v-3z"/>
+        </svg>
+      </button>
+      <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="List view">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M2.5 12a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4a.5.5 0 01.5-.5h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5z"/>
+        </svg>
+      </button>
+    </div>
+
+    <span id="selPill" class="sel-pill">0 selected</span>
+
+    <!-- Clear Selection (#12) -->
+    <button id="clearSelBtn" onclick="clearSelection()" style="display:none;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:7px 12px;font-size:12px;cursor:pointer;" title="Deselect all">✕ Clear</button>
+
+    <!-- Bulk Notes (#4) -->
+    <button id="bulkNotesBtn" onclick="openBulkNotesModal()">
+      📝 Note All
+    </button>
+
+    <!-- Remove from Index (#5) -->
+    <button id="removeBtn" onclick="removeSelected()">
+      🗑 Remove
+    </button>
+
+    <button id="stageBtn" onclick="stageSelected()">⬇ Stage Clips</button>
+    <button id="clearBtn" onclick="clearStaging()">Clear Staging</button>
+
+    <!-- Indexer button (#10) -->
+    <button id="indexerBtn" onclick="runIndexer()" title="Refresh clip index" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:7px 10px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Sync Index
+    </button>
+    <div id="indexerStatus" class="indexer-status" title="Daily indexer schedule">
+      Indexer: <strong>status unavailable</strong>
+    </div>
+    <div class="editor-wrap">
+      <span class="editor-label">EDITOR</span>
+      <select id="editorSelect" onchange="onEditorChange(this.value)"></select>
+    </div>
+    <div id="userBox" class="user-box" hidden>
+      <span id="userEmail" class="user-email"></span>
+      <span id="userRole" class="user-role"></span>
+      <button id="logoutBtn" type="button" onclick="clipstageLogout()" title="Sign out of ClipStage">Log out</button>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Panel (#3) — always visible, no toggle click needed -->
+<div class="filter-panel open" id="filterPanel">
+  <div class="filter-row">
+    <div class="filter-group">
+      <label>RANK BY</label>
+      <select id="rankBy" onchange="onRankChange()" title="Decides which clips make the top results and in what order">
+        <option value="">Best match (popular first)</option>
+        <option value="relevance">Closest match</option>
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="most_used">Most used</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>VOLUME</label>
+      <select id="filterVolume" onchange="onVolumeFilterChange()">
+        <option value="">All volumes</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>FOLDER</label>
+      <select id="filterFolder" onchange="applyFilters()">
+        <option value="">All folders</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>TYPE</label>
+      <select id="filterExt" onchange="applyFilters()">
+        <option value="">All types</option>
+        <option value="MXF">MXF</option>
+        <option value="MP4">MP4</option>
+        <option value="MOV">MOV</option>
+        <option value="AVI">AVI</option>
+        <option value="MKV">MKV</option>
+        <option value="R3D">R3D</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>MIN SIZE (MB)</label>
+      <input type="number" id="filterSizeMin" min="0" placeholder="0" onchange="applyFilters()">
+    </div>
+    <div class="filter-group">
+      <label>MAX SIZE (MB)</label>
+      <input type="number" id="filterSizeMax" min="0" placeholder="∞" onchange="applyFilters()">
+    </div>
+    <button class="filter-reset" onclick="resetFilters()">✕ Reset</button>
+  </div>
+</div>
+
+<div class="body">
+  <!-- Results -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="state-screen" id="emptyState">
+      <div class="icon">🎬</div>
+      <div class="title">Search the archive</div>
+      <div class="sub">Type a filename, category, or keyword to find MXF clips</div>
+    </div>
+    <div id="resultsMeta" class="results-meta" style="display:none"></div>
+    <details id="facetCard" class="facet-card" open></details>
+    <div id="pagerTop" class="pager"></div>
+    <!-- Grid view container -->
+    <div id="resultsGrid" class="results-grid"></div>
+    <!-- List view column header (sortable) -->
+    <div id="listTableHead" class="list-table-head" style="display:none">
+      <span></span><span></span>
+      <button class="col-sort" data-field="name" onclick="sortByColumn('name')">
+        NAME
+        <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+      <span style="font-size:10px">DURATION</span>
+      <button class="col-sort" data-field="date" onclick="sortByColumn('date')" title="Sort by date">
+        DATE
+        <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+      <button class="col-sort" data-field="size" onclick="sortByColumn('size')">
+        SIZE
+        <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+      <span style="font-size:10px">CATEGORY</span>
+      <span style="font-size:10px">VOLUME</span>
+      <span style="font-size:10px">EXT</span>
+      <button class="col-sort" data-field="use_count" onclick="sortByColumn('use_count')" title="Most staged">
+        ★
+        <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+      <span></span>
+    </div>
+    <!-- List view container -->
+    <div id="resultsList" class="results-list" style="display:none"></div>
+    <div id="pagerBottom" class="pager"></div>
+  </div>
+
+  <!-- Staging sidebar -->
+  <div class="staging-panel">
+    <div class="staging-header">
+      <div class="staging-title">MY STAGING</div>
+      <div class="staging-sub" id="stagingEditorName">Select your name to begin</div>
+    </div>
+    <button id="openFinderBtn" onclick="openFinder()">📂 Open in Finder</button>
+    <div id="stgSelBar"><a onclick="stgSelectAll()">Select all</a><a onclick="stgClearSel()">Clear</a><span id="stgSelCount">Click cards to select several, then drag</span></div>
+    <div class="staging-list" id="stagingList">
+      <div class="staging-empty" id="stagingHint">Stage clips here, then drag from<br><strong>/Volumes/staging/[name]/</strong><br>into FCP → Leave in Place</div>
+    </div>
+    <div class="staging-footer">
+      <div class="staging-path">
+        <strong>YOUR FOLDER</strong>
+        <span id="stagingPathPrefix">/Volumes/staging/</span><span id="stagingEditorSlug">—</span><span id="stagingPathSuffix">/</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Notes / Metadata edit modal -->
+<div id="notesOverlay" onclick="if(event.target===this) closeNotesModal()">
+  <div class="notes-box" style="width:500px">
+    <h3 id="notesClipName"></h3>
+    <div class="notes-sub" id="notesConflictBanner" style="color:var(--red);display:none;margin-bottom:8px"></div>
+    <div class="notes-sub">Notes</div>
+    <textarea id="notesTextarea" maxlength="5000" placeholder="Add a note for this clip…"></textarea>
+    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1.5px;margin-bottom:4px">TAGS</div>
+        <input id="metaTags" type="text" placeholder="vijay, speech, chennai, 2024"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text-bright);font-family:'Inter',sans-serif;font-size:12px;padding:7px 10px;outline:none;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1.5px;margin-bottom:4px">REPORTER</div>
+        <input id="metaReporter" type="text" placeholder="Reporter name"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text-bright);font-family:'Inter',sans-serif;font-size:12px;padding:7px 10px;outline:none;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1.5px;margin-bottom:4px">LOCATION</div>
+        <input id="metaLocation" type="text" placeholder="Chennai, Delhi…"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text-bright);font-family:'Inter',sans-serif;font-size:12px;padding:7px 10px;outline:none;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1.5px;margin-bottom:4px">DESCRIPTION</div>
+        <input id="metaDesc" type="text" placeholder="Brief description…"
+          style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text-bright);font-family:'Inter',sans-serif;font-size:12px;padding:7px 10px;outline:none;box-sizing:border-box">
+      </div>
+    </div>
+    <div id="metaUpdatedBy" style="font-size:10px;color:var(--muted);margin-top:10px;font-family:'Space Mono',monospace"></div>
+    <div class="notes-actions">
+      <button class="notes-cancel" onclick="closeNotesModal()">Cancel</button>
+      <button class="notes-save" id="notesSaveBtn" onclick="saveNotes()">💾 Save to NAS</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Notes modal (#4) -->
+<div id="bulkNotesOverlay" onclick="if(event.target===this) closeBulkNotesModal()">
+  <div class="notes-box">
+    <h3 id="bulkNotesTitle">Add note to selected clips</h3>
+    <div class="notes-sub" id="bulkNotesSub"></div>
+    <textarea id="bulkNotesTextarea" maxlength="5000" placeholder="Note to apply to all selected clips…"></textarea>
+    <div class="notes-actions">
+      <button class="notes-cancel" onclick="closeBulkNotesModal()">Cancel</button>
+      <button class="notes-save" id="bulkNotesSaveBtn" onclick="saveBulkNotes()">Save All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Keyboard shortcut hint -->
+<div class="kbd-hint"><kbd>Ctrl K</kbd> search &nbsp; <kbd>Esc</kbd> clear &nbsp; <kbd>↑↓←→</kbd> navigate &nbsp; <kbd>Space</kbd> select &nbsp; <kbd>Enter</kbd> stage &nbsp; <kbd>Ctrl O</kbd> open folder</div>
+
+<script>
+const API = '';
+let currentEditor = '';
+let selected = new Set();
+let searchTimer = null;
+let currentView = 'grid'; // 'grid' | 'list'
+let lastHits = [];
+let originalHits = [];  // unsorted copy to restore default order
+let sortField = 'none';
+// Pagination: results are fetched in one go (so sort + filters work across ALL hits) and
+// shown PAGE_SIZE at a time. Allowed sizes: 250 (default) or 500.
+const PAGE_SIZES = [250, 500];
+let pageSize = (() => { try { const v = parseInt(localStorage.getItem('clipstage_page_size'), 10); return PAGE_SIZES.includes(v) ? v : 250; } catch (e) { return 250; } })();
+let curPage = 1;
+let sortDir = 'desc';
+let editingClipId = null;
+// Selection is tracked by file path, but bulk-notes / remove need clip IDs.
+const pathToId = new Map();
+function selectedIds() { return [...selected].map(p => pathToId.get(p)).filter(Boolean); }
+function isAdminRole() { return localStorage.getItem('clipstage_token_role') === 'admin'; }
+const authGate = document.getElementById('authGate');
+const authForm = document.getElementById('authForm');
+const authEmail = document.getElementById('authEmail');
+const authPassword = document.getElementById('authPassword');
+const authError = document.getElementById('authError');
+const authSubmit = document.getElementById('authSubmit');
+const nativeFetch = window.fetch.bind(window);
+let appStarted = false;
+
+function getStoredSession() {
+  const expiresAt = Number(localStorage.getItem('clipstage_token_exp') || 0) * 1000;
+  const validThrough = localStorage.getItem('clipstage_token_valid_through');
+  const role = localStorage.getItem('clipstage_token_role');
+  if (!validThrough || expiresAt <= Date.now() || !['admin', 'editor'].includes(role)) return null;
+  return true;
+}
+
+function clearStoredSession() {
+  ['clipstage_token', 'clipstage_token_exp', 'clipstage_token_user', 'clipstage_token_role', 'clipstage_token_valid_through']
+    .forEach(key => localStorage.removeItem(key));
+}
+
+function showAuthGate(message, clearCookie = false) {
+  clearStoredSession();
+  window.clipstageAuthenticated = false;
+  authGate.hidden = false;
+  authError.textContent = message || 'Sign in with your newsroom account to continue.';
+  authPassword.value = '';
+  if (clearCookie) nativeFetch('/auth/logout', { method: 'POST' }).catch(() => {});
+  if (window.clipstageStopIndexerStatus) window.clipstageStopIndexerStatus();
+  requestAnimationFrame(() => authEmail.focus());
+}
+
+const publicFetchPaths = new Set(['/', '/health', '/auth/login', '/auth/logout', '/static/indexer_status.js']);
+window.fetch = function(input, init) {
+  const requestUrl = new URL(input instanceof Request ? input.url : input, window.location.href);
+  const isPublicRequest = requestUrl.origin !== window.location.origin || publicFetchPaths.has(requestUrl.pathname);
+  let requestInit = init;
+  if (requestUrl.origin === window.location.origin) {
+    // CSRF defence: a page on another site cannot add this header to a request to us.
+    const headers = new Headers((init && init.headers) || (input instanceof Request ? input.headers : undefined) || {});
+    headers.set('X-ClipStage-CSRF', '1');
+    requestInit = Object.assign({}, init || {}, { headers });
+  }
+  return nativeFetch(input, requestInit).then(response => {
+    if (response.status === 401 && !isPublicRequest) {
+      showAuthGate('Your session expired or is no longer active. Please sign in again.', true);
+    }
+    return response;
+  });
+};
+
+// Header: who is signed in + Log out. Always rendered here (not by indexer_status.js).
+function renderUserBox() {
+  const box = document.getElementById('userBox');
+  if (!box) return;
+  const email = localStorage.getItem('clipstage_token_user');
+  const role = localStorage.getItem('clipstage_token_role');
+  if (!getStoredSession() || !email) { box.hidden = true; return; }
+  document.getElementById('userEmail').textContent = email;
+  const r = document.getElementById('userRole');
+  r.textContent = role;
+  r.className = 'user-role ' + role;
+  box.hidden = false;
+}
+
+// The server is the source of truth for the account and its role (GET /auth/me).
+// Refresh the saved copy so the header and the admin-only controls always match it.
+async function syncSessionFromServer() {
+  try {
+    const res = await fetch('/auth/me', { cache: 'no-store' });
+    if (res.ok) {
+      const d = await res.json();
+      if (d && d.role) {
+        localStorage.setItem('clipstage_token_user', d.username || '');
+        localStorage.setItem('clipstage_token_role', d.role);
+        localStorage.setItem('clipstage_token_valid_through', d.valid_through || '');
+      }
+    }
+  } catch (e) { /* offline: keep what we have */ }
+  renderUserBox();
+  if (window.clipstageRefreshIndexerAuth) window.clipstageRefreshIndexerAuth();
+  if (typeof updateSelectionUI === 'function') updateSelectionUI();
+}
+
+function startClipstageApp() {
+  authGate.hidden = true;
+  authError.textContent = '';
+  window.clipstageAuthenticated = true;
+  if (!appStarted) {
+    appStarted = true;
+    init();
+  }
+  renderUserBox();
+  syncSessionFromServer();
+  if (window.clipstageRefreshIndexerAuth) window.clipstageRefreshIndexerAuth();
+  if (window.clipstageStartIndexerStatus) window.clipstageStartIndexerStatus();
+}
+
+window.clipstageShowLogin = function() {
+  authGate.hidden = false;
+  requestAnimationFrame(() => authEmail.focus());
+};
+window.clipstageLogout = async function() {
+  // Ask the server to end the session (clears the cookie and revokes it at Supabase),
+  // wipe what this browser saved, then reload so no clip data stays on screen.
+  try { await nativeFetch('/auth/logout', { method: 'POST' }); } catch (e) { /* still sign out locally */ }
+  clearStoredSession();
+  try { sessionStorage.setItem('clipstage_signed_out', '1'); } catch (e) {}
+  window.location.reload();
+};
+
+authForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  authError.textContent = '';
+  authSubmit.disabled = true;
+  authSubmit.textContent = 'Signing in...';
+  try {
+    const response = await nativeFetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: authEmail.value.trim(), password: authPassword.value })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.detail || 'Sign-in failed');
+    localStorage.removeItem('clipstage_token');
+    localStorage.setItem('clipstage_token_exp', String(Math.floor(Date.now() / 1000) + result.expires_in));
+    localStorage.setItem('clipstage_token_user', result.username);
+    localStorage.setItem('clipstage_token_role', result.role);
+    localStorage.setItem('clipstage_token_valid_through', result.valid_through);
+    authPassword.value = '';
+    if (appStarted) {
+      window.location.reload();
+      return;
+    }
+    startClipstageApp();
+  } catch (error) {
+    authError.textContent = error.message || 'Sign-in failed';
+  } finally {
+    authSubmit.disabled = false;
+    authSubmit.textContent = 'Sign in';
+  }
+});
+
+// ── VIDEO PLAYER ──────────────────────────────────────────────────────────────
+function playClip(uid, filename) {
+  const modal = document.getElementById('playerModal');
+  const video = document.getElementById('playerVideo');
+  document.getElementById('playerTitle').textContent = filename;
+  video.onerror = () => showToast('Preview unavailable — too many previews are playing, or the file is offline', 'error');
+  video.src = `${API}/stream/${uid}`;
+  modal.classList.add('open');
+}
+function closePlayer() {
+  const v = document.getElementById('playerVideo');
+  v.pause(); v.src = '';
+  document.getElementById('playerModal').classList.remove('open');
+}
+// Escape-to-close is handled in the main keyboard-shortcuts listener below
+// (checking playerModal's state there, before anything else touches it,
+// avoids a race between two separate Escape handlers).
+
+// ── PLAY BUTTON (event delegation) ───────────────────────────────────────────
+document.addEventListener('mouseover', function(e) {
+  const card = e.target.closest('.clip-card, .list-row');
+  if (!card) return;
+  const uid = card.dataset.uid;
+  const fname = card.dataset.fname;
+  if (!uid) return;
+
+  // Grid cards: overlay bottom-right of the whole card (sits over the thumb).
+  // List rows: overlay the small thumbnail itself, sized to fit — appending
+  // to the row would float the button off in the corner of the metadata
+  // columns instead of on the thumbnail.
+  const isList = card.classList.contains('list-row');
+  const container = isList ? card.querySelector('.list-thumb') : card;
+  if (!container || container.querySelector('.play-btn')) return;
+
+  const btn = document.createElement('button');
+  btn.className = 'play-btn';
+  btn.innerHTML = '&#9654;';
+  btn.title = 'Play preview';
+  btn.style.cssText = isList
+    ? 'position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,0.75);border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:8px;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;'
+    : 'position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.75);border:none;color:#fff;border-radius:50%;width:32px;height:32px;font-size:15px;cursor:pointer;z-index:3;';
+  btn.onclick = function(ev) { ev.stopPropagation(); playClip(uid, fname); };
+  container.style.position = 'relative';
+  container.appendChild(btn);
+});
+
+// ── INDEXER STATUS ─────────────────────────────────────────────────────────
+function formatIndexerDuration(seconds) {
+  if (seconds === null || seconds === undefined) return '—';
+  const total = Math.round(Number(seconds));
+  if (total < 60) return `${total}s`;
+  return `${Math.floor(total / 60)}m ${total % 60}s`;
+}
+
+function formatIndexerDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+}
+
+async function loadIndexerStatus() {
+  const statusEl = document.getElementById('indexerStatus');
+
+  try {
+    const res = await fetch(`${API}/admin/index-status`, {
+      cache: 'no-store'
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const s = await res.json();
+
+    if (s.state === 'running') {
+      statusEl.className = 'indexer-status running';
+
+      const started = s.started_at
+        ? formatIndexerDate(s.started_at * 1000)
+        : 'now';
+
+      statusEl.innerHTML =
+        `Indexer: <strong>running now</strong> · ${started}`;
+      return;
+    }
+
+    if (s.state === 'error' || s.state === 'stalled') {
+      statusEl.className = 'indexer-status error';
+
+      statusEl.innerHTML =
+        `Indexer: <strong>${escapeHtml(s.state)}</strong>` +
+        (s.message ? ` · ${escapeHtml(s.message)}` : '');
+      return;
+    }
+
+    if (s.last_finished_at) {
+      statusEl.className = 'indexer-status idle';
+
+      statusEl.innerHTML =
+        `Indexer: <strong>idle</strong> · Last run: ` +
+        `${formatIndexerDate(s.last_finished_at * 1000)}` +
+        (s.last_duration_s != null
+          ? ` · took ${formatIndexerDuration(s.last_duration_s)}`
+          : '') +
+        (s.last_warning
+          ? ` · <span style="color:#f5a524" title="${escapeHtml(s.last_warning)}">⚠ warning — hover</span>`
+          : '') +
+        (s.last_total != null
+          ? ` · ${s.last_total.toLocaleString()} clips`
+          : '');
+      return;
+    }
+
+    statusEl.className = 'indexer-status';
+    statusEl.textContent = 'Indexer: no runs recorded';
+
+  } catch (e) {
+    statusEl.textContent = 'Indexer: status unavailable';
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const cfg = await (await fetch(`${API}/config`)).json();
+    CLIPSTAGE_SMB_HOST = cfg.smb_host || '';
+    CLIPSTAGE_SHARE = cfg.share_name || 'staging';
+  } catch (e) { /* optional */ }
+  applyClientPlatformText();
+  try {
+    const res = await fetch(`${API}/editors`);
+    const data = await res.json();
+    const editors = data.editors || [];
+    const editorSel = document.getElementById('editorSelect');
+    if (editorSel) {
+      editorSel.innerHTML = '<option value="">— Select your name —</option>';
+      editors.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        editorSel.appendChild(option);
+      });
+    }
+  } catch(e) {
+    showToast('Cannot reach ClipStage server', 'error');
+  }
+  loadVolumeFacet();
+  loadIndexerStatus();
+  setInterval(loadIndexerStatus, 30000);
+}
+
+
+// Draws attention to the editor dropdown when someone tries to do
+// something (stage / clear / remove / notes) before picking their name.
+let editorAlertTimer;
+function flashEditorSelect() {
+  const sel = document.getElementById('editorSelect');
+  sel.classList.remove('name-alert');
+  void sel.offsetWidth; // restart the animation even if it's already mid-blink
+  sel.classList.add('name-alert');
+  clearTimeout(editorAlertTimer);
+  editorAlertTimer = setTimeout(() => sel.classList.remove('name-alert'), 1600);
+}
+
+function onEditorChange(val) {
+  currentEditor = val;
+  document.getElementById('stagingEditorName').textContent = val || 'Select your name';
+  document.getElementById('stagingEditorSlug').textContent = val || '—';
+  if (val) {
+    document.getElementById('openFinderBtn').classList.add('visible');
+    loadStaging();
+  } else {
+    document.getElementById('openFinderBtn').classList.remove('visible');
+  }
+}
+
+// ── VIEW TOGGLE ───────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  document.getElementById('gridViewBtn').classList.toggle('active', v === 'grid');
+  document.getElementById('listViewBtn').classList.toggle('active', v === 'list');
+  document.getElementById('resultsGrid').style.display = v === 'grid' ? 'grid' : 'none';
+  document.getElementById('resultsList').style.display = v === 'list' ? 'flex' : 'none';
+  // Only show list header when there are results
+  document.getElementById('listTableHead').style.display = (v === 'list' && lastHits.length) ? 'grid' : 'none';
+  if (lastHits.length) renderClips(lastHits);
+}
+
+// ── SORT (click a column header) ────────────────────────────────────────────
+function sortByColumn(field) {
+  if (sortField === field) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField = field;
+    sortDir = (field === 'name') ? 'asc' : 'desc';
+  }
+  document.querySelectorAll('.col-sort').forEach(btn => {
+    const isActive = btn.dataset.field === sortField;
+    btn.classList.toggle('active', isActive);
+    btn.classList.toggle('desc', isActive && sortDir === 'desc');
+  });
+  curPage = 1;
+  sortAndRender();
+}
+
+function sortAndRender() {
+  if (!lastHits.length) return;
+  let hits;
+  if (sortField === 'size') {
+    hits = [...originalHits].sort((a, b) => {
+      const av = a.size_mb || 0, bv = b.size_mb || 0;
+      return sortDir === 'asc' ? av - bv : bv - av;
+    });
+  } else if (sortField === 'name') {
+    hits = [...originalHits].sort((a, b) => {
+      const cmp = (a.filename || '').localeCompare(b.filename || '');
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  } else if (sortField === 'use_count') {
+    hits = [...originalHits].sort((a, b) => {
+      const av = a.use_count || 0, bv = b.use_count || 0;
+      return sortDir === 'asc' ? av - bv : bv - av;
+    });
+  } else if (sortField === 'date') {
+    hits = [...originalHits].sort((a, b) => {
+      const av = a.date || '', bv = b.date || '';
+      return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+  } else {
+    hits = [...originalHits];
+  }
+  lastHits = hits;
+  renderClips(hits);
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────
+function onSearch(val) {
+  clearTimeout(searchTimer);
+  if (!val.trim()) { showEmpty(); return; }
+  searchTimer = setTimeout(() => doSearch(val.trim()), 280);
+}
+
+async function doSearch(q) {
+  kbFocusIdx = -1;
+  curPage = 1;
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultsMeta').style.display = 'flex';
+  document.getElementById('resultsMeta').innerHTML = '<span class="spinner"></span>&nbsp; Searching…';
+  document.getElementById('resultsGrid').innerHTML = '';
+  document.getElementById('resultsList').innerHTML = '';
+  renderPager(0, 1, 0);
+  renderFacets(null);
+  try {
+    // Pre-scope by the currently selected volume (if any) — cheaper scan
+    // server-side, on top of the Typesense candidate-narrowing it already does.
+    const vol = document.getElementById('filterVolume').value;
+    let url = `${API}/search?q=${encodeURIComponent(q)}`;
+    if (vol) url += `&volume=${encodeURIComponent(vol)}`;
+    const rank = document.getElementById('rankBy').value;
+    if (rank) url += `&sort=${encodeURIComponent(rank)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    document.getElementById('resultsMeta').textContent = `${data.total.toLocaleString()} clips found` +
+      (data.truncated ? ` — showing the first ${data.shown.toLocaleString()}, add a word to narrow it down` : '');
+    if (!data.hits.length) {
+      document.getElementById('resultsGrid').innerHTML =
+        `<div style="grid-column:1/-1;color:var(--muted);font-size:13px;padding:24px 0">No clips matched "${escapeHtml(q)}"</div>`;
+      document.getElementById('resultsList').innerHTML =
+        `<div style="color:var(--muted);font-size:13px;padding:24px 0">No clips matched "${escapeHtml(q)}"</div>`;
+      lastHits = []; originalHits = [];
+      return;
+    }
+    renderFacets(data.facets);
+    data.hits.forEach(h => { if (h.path && h.id) pathToId.set(h.path, h.id); });
+    lastHits = data.hits;
+    originalHits = data.hits.slice();
+    populateFilterFolders(data.hits);
+    sortAndRender();
+  } catch(e) {
+    document.getElementById('resultsMeta').textContent = 'Search failed';
+    showToast('Search error — check server', 'error');
+  }
+}
+
+// Volume dropdown is populated once (all volumes, independent of whatever
+// the current — possibly volume-scoped — search results contain), so
+// switching volumes is never limited to "volumes seen in this result set".
+async function loadVolumeFacet() {
+  try {
+    const res = await fetch(`${API}/facets/volumes`);
+    const data = await res.json();
+    const sel = document.getElementById('filterVolume');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All volumes</option>' +
+      (data.volumes || []).map(v => `<option value="${escapeHtml(v)}"${v===cur?' selected':''}>${escapeHtml(v)}</option>`).join('');
+  } catch(e) { /* silent — dropdown just stays as-is */ }
+}
+
+function thumbUrl(clip) {
+  if (clip.id) return `${API}/thumb/${clip.id}`;
+  return null;
+}
+
+// ── STAR BADGE (use_count → visual tier) ──────────────────────────────────────
+function starBadge(use_count) {
+  const n = use_count || 0;
+  if (n <= 0)  return '';
+  if (n < 5)   return `<span class="star-badge tier1" title="Staged ${n}×">★</span>`;
+  if (n < 15)  return `<span class="star-badge tier2" title="Staged ${n}×">★★</span>`;
+  return             `<span class="star-badge tier3" title="Staged ${n}×">★★★</span>`;
+}
+
+function renderClips(clips, resetPage) {
+  if (resetPage) curPage = 1;
+  const pages = Math.max(1, Math.ceil(clips.length / pageSize));
+  if (curPage > pages) curPage = pages;
+  if (curPage < 1) curPage = 1;
+  const start = (curPage - 1) * pageSize;
+  renderClipsRaw(clips.slice(start, start + pageSize));
+  renderPager(clips.length, pages, start);
+  kbFocusIdx = -1;
+}
+
+// Small summary card: how many matches per Volume / Type / Folder. Counts come from the
+// server and cover ALL matches (not just the ones loaded), so they can exceed what is listed.
+function renderFacets(facets) {
+  const el = document.getElementById('facetCard');
+  const groups = [['volume', 'Volume', 99], ['ext', 'Type', 99], ['folder', 'Folder', 12]];
+  let rows = '';
+  groups.forEach(([key, label, cap]) => {
+    const vals = (facets && facets[key]) || [];
+    if (!vals.length) return;
+    const chips = vals.slice(0, cap).map(v =>
+      `<button class="facet-chip click" data-fk="${key}" data-fv="${escapeHtml(v.value)}" title="Filter to ${escapeHtml(v.value)}">${escapeHtml(v.value)}<b>${v.count.toLocaleString()}</b></button>`
+    ).join('');
+    const more = vals.length > cap ? `<span class="facet-chip">+${vals.length - cap} more</span>` : '';
+    rows += `<div class="facet-row"><span class="fl">${label}</span>${chips}${more}</div>`;
+  });
+  el.innerHTML = rows ? `<summary>Matches by column</summary>${rows}` : '';
+  el.classList.toggle('show', !!rows);
+}
+
+document.addEventListener('click', e => {
+  const chip = e.target.closest && e.target.closest('.facet-chip[data-fk]');
+  if (!chip) return;
+  const key = chip.dataset.fk, val = chip.dataset.fv;
+  if (key === 'volume') {
+    document.getElementById('filterVolume').value = val;
+    onVolumeFilterChange();
+    return;
+  }
+  const sel = document.getElementById(key === 'ext' ? 'filterExt' : 'filterFolder');
+  if (![...sel.options].some(o => o.value === val)) {
+    showToast(`"${val}" isn't in the loaded results — narrow the search to reach it`, 'error');
+    return;
+  }
+  sel.value = val;
+  applyFilters();
+});
+
+function renderPager(total, pages, start) {
+  const html = (() => {
+    if (!total) return '';
+    const from = start + 1, to = Math.min(start + pageSize, total);
+    // window of page numbers: 1 … (cur-2..cur+2) … last
+    const nums = [];
+    for (let p = 1; p <= pages; p++) {
+      if (p === 1 || p === pages || Math.abs(p - curPage) <= 2) nums.push(p);
+      else if (nums[nums.length - 1] !== '…') nums.push('…');
+    }
+    const btns = pages > 1
+      ? `<button ${curPage === 1 ? 'disabled' : ''} onclick="goPage(${curPage - 1})">‹ Prev</button>` +
+        nums.map(p => p === '…' ? '<span class="pg-gap">…</span>'
+          : `<button class="${p === curPage ? 'cur' : ''}" onclick="goPage(${p})">${p}</button>`).join('') +
+        `<button ${curPage === pages ? 'disabled' : ''} onclick="goPage(${curPage + 1})">Next ›</button>`
+      : '';
+    const sizeSel = total > PAGE_SIZES[0]
+      ? `<span class="pg-size">Per page <select onchange="setPageSize(this.value)">` +
+        PAGE_SIZES.map(n => `<option value="${n}"${n === pageSize ? ' selected' : ''}>${n}</option>`).join('') +
+        `</select></span>`
+      : '';
+    return `<span>Showing ${from.toLocaleString()}–${to.toLocaleString()} of ${total.toLocaleString()}</span>` +
+           `<span class="pg-btns">${btns}</span>${sizeSel}`;
+  })();
+  ['pagerTop', 'pagerBottom'].forEach(id => {
+    const el = document.getElementById(id);
+    el.innerHTML = html;
+    el.classList.toggle('show', !!html);
+  });
+}
+
+function goPage(p) {
+  curPage = p;
+  renderClips(lastHits);
+  document.getElementById('resultsPanel').scrollTop = 0;
+}
+
+function setPageSize(v) {
+  const n = parseInt(v, 10);
+  if (!PAGE_SIZES.includes(n)) return;
+  pageSize = n;
+  try { localStorage.setItem('clipstage_page_size', String(n)); } catch (e) {}
+  renderClips(lastHits, true);
+  document.getElementById('resultsPanel').scrollTop = 0;
+}
+
+function renderClipsRaw(clips) {
+  // Show/hide list table header
+  document.getElementById('listTableHead').style.display =
+    (currentView === 'list' && clips.length) ? 'grid' : 'none';
+  // GRID
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = '';
+  if (currentView === 'grid') {
+    clips.forEach(clip => {
+      const isSel = selected.has(clip.path);
+      const ext = clip.filename.split('.').pop().toUpperCase();
+      const tUrl = thumbUrl(clip);
+      const card = document.createElement('div');
+      card.className = `clip-card${isSel ? ' selected' : ''}`;
+      card.dataset.path = clip.path;
+      card.dataset.uid = clip.id || '';
+      card.dataset.fname = clip.filename || '';
+      card.innerHTML = `
+        <div class="clip-thumb">
+          ${tUrl
+            ? `<img src="${escapeHtml(tUrl)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ''}
+          <span class="no-thumb" style="display:${tUrl ? 'none' : 'flex'}">🎬</span>
+        </div>
+        <div class="clip-check">
+          <svg width="10" height="10" fill="none" stroke="#000" stroke-width="2.5" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="edit-btn${clip.notes ? ' has-notes' : ''}" title="${clip.notes ? 'Has notes — click to edit' : 'Add notes'}" data-edit-id="${escapeHtml(clip.id)}" data-edit-name="${escapeHtml(clip.filename)}">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="clip-info">
+          <div class="clip-name">${clip.filename_hl || escapeHtml(clip.filename)}${starBadge(clip.use_count)}</div>
+          <div class="clip-path">${escapeHtml(clip.path || '')}</div>
+          <div class="clip-meta">
+            <div class="clip-meta-item dur">
+              <span class="clip-meta-icon">⏱</span>
+              <span class="clip-meta-val">${escapeHtml(clip.duration || '—')}</span>
+            </div>
+            <div class="clip-meta-item date">
+              <span class="clip-meta-icon">📅</span>
+              <span class="clip-meta-val">${escapeHtml(clip.date || '—')}</span>
+            </div>
+            <div class="clip-meta-item size">
+              <span class="clip-meta-icon">💾</span>
+              <span class="clip-meta-val">${clip.size_mb ? (typeof clip.size_mb === 'number' ? clip.size_mb.toFixed(1) : escapeHtml(clip.size_mb)) + ' MB' : '—'}</span>
+            </div>
+            <div class="clip-meta-item cat">
+              <span class="clip-meta-icon">🗂</span>
+              <span class="clip-meta-val">${escapeHtml(clip.category || '—')}</span>
+            </div>
+            <div class="clip-meta-item vol">
+              <span class="clip-meta-icon">💿</span>
+              <span class="clip-meta-val">${escapeHtml(clip.volume || '—')}</span>
+            </div>
+            <div class="clip-meta-item cat">
+              <span class="clip-meta-icon">📁</span>
+              <span class="clip-meta-val">${escapeHtml(clip.folder || '—')}</span>
+            </div>
+            <div class="clip-meta-item ext">
+              <span class="clip-meta-icon">🎬</span>
+              <span class="clip-meta-val">${escapeHtml(ext)}</span>
+            </div>
+          </div>
+          ${clip.notes ? `<div class="clip-notes">📝 ${escapeHtml(clip.notes)}</div>` : ''}
+        </div>`;
+      card.onclick = () => toggleClip(clip.path, card);
+      card.draggable = canDragPaths();
+      grid.appendChild(card);
+    });
+  }
+
+  // LIST
+  const list = document.getElementById('resultsList');
+  list.innerHTML = '';
+  if (currentView === 'list') {
+    clips.forEach(clip => {
+      const isSel = selected.has(clip.path);
+      const ext = clip.filename.split('.').pop().toUpperCase();
+      const tUrl = thumbUrl(clip);
+      const row = document.createElement('div');
+      row.className = `list-row${isSel ? ' selected' : ''}`;
+      row.dataset.path = clip.path;
+      row.dataset.uid = clip.id || '';
+      row.dataset.fname = clip.filename || '';
+      row.innerHTML = `
+        <div class="list-thumb">
+          ${tUrl
+            ? `<img src="${escapeHtml(tUrl)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ''}
+          <span class="no-thumb" style="display:${tUrl ? 'none' : 'flex'}">🎬</span>
+        </div>
+        <div class="list-check">
+          <svg width="9" height="9" fill="none" stroke="#000" stroke-width="2.5" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="list-name-wrap">
+          <div class="list-name">${clip.filename_hl || escapeHtml(clip.filename)}</div>
+          <div class="list-path">${escapeHtml(clip.path || '')}</div>
+        </div>
+        <div class="list-col">${escapeHtml(clip.duration || '—')}</div>
+        <div class="list-col" style="font-size:10px">${escapeHtml(clip.date || '—')}</div>
+        <div class="list-col size">${clip.size_mb ? (typeof clip.size_mb === 'number' ? clip.size_mb.toFixed(1) : escapeHtml(clip.size_mb)) + ' MB' : '—'}</div>
+        <div class="list-col cat">${escapeHtml(clip.category || '—')}</div>
+        <div class="list-col vol">${escapeHtml(clip.volume || '—')}</div>
+        <div class="list-col">${escapeHtml(ext)}</div>
+        <div class="list-col stars" title="Staged ${clip.use_count||0}×">${starBadge(clip.use_count)}</div>
+        <div class="edit-btn${clip.notes ? ' has-notes' : ''}" title="${clip.notes ? 'Has notes — click to edit' : 'Add notes'}" data-edit-id="${escapeHtml(clip.id)}" data-edit-name="${escapeHtml(clip.filename)}">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>`;
+      row.onclick = () => toggleClipRow(clip.path, row);
+      row.draggable = canDragPaths();
+      list.appendChild(row);
+    });
+  }
+
+  // Wire up edit (notes) buttons — done via addEventListener + data-* attrs
+  // so filenames with quote characters don't break inline onclick HTML.
+  document.querySelectorAll('.edit-btn[data-edit-id]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      openNotesModal(btn.dataset.editId, btn.dataset.editName);
+    };
+  });
+}
+
+function toggleClip(path, card) {
+  if (selected.has(path)) { selected.delete(path); card.classList.remove('selected'); }
+  else { selected.add(path); card.classList.add('selected'); }
+  // sync list row too
+  const row = document.querySelector(`.list-row[data-path="${CSS.escape(path)}"]`);
+  if (row) row.classList.toggle('selected', selected.has(path));
+  updateSelectionUI();
+}
+
+function toggleClipRow(path, row) {
+  if (selected.has(path)) { selected.delete(path); row.classList.remove('selected'); }
+  else { selected.add(path); row.classList.add('selected'); }
+  // sync grid card too
+  const card = document.querySelector(`.clip-card[data-path="${CSS.escape(path)}"]`);
+  if (card) card.classList.toggle('selected', selected.has(path));
+  updateSelectionUI();
+}
+
+function updateSelectionUI() {
+  const count = selected.size;
+  document.getElementById('selPill').textContent = `${count} selected`;
+  document.getElementById('selPill').classList.toggle('visible', count > 0);
+  document.getElementById('stageBtn').classList.toggle('visible', count > 0);
+  document.getElementById('bulkNotesBtn').classList.toggle('visible', count > 1);
+  document.getElementById('removeBtn').classList.toggle('visible', count > 0 && isAdminRole());
+  document.getElementById('clearSelBtn').style.display = count > 0 ? 'inline-flex' : 'none';
+}
+
+function showEmpty() {
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('resultsMeta').style.display = 'none';
+  document.getElementById('listTableHead').style.display = 'none';
+  document.getElementById('resultsGrid').innerHTML = '';
+  document.getElementById('resultsList').innerHTML = '';
+  renderPager(0, 1, 0);
+  renderFacets(null);
+  lastHits = []; originalHits = []; curPage = 1;
+}
+
+// ── STAGE ─────────────────────────────────────────────────────────────────
+async function stageSelected() {
+  if (!currentEditor) { showToast('Please select your name first', 'error'); flashEditorSelect(); return; }
+  if (!selected.size)  { showToast('No clips selected', 'error'); return; }
+  // Conflict check
+  const okStage = await checkConflictsBeforeStage([...selected]);
+  if (!okStage) return;
+  const btn = document.getElementById('stageBtn');
+  btn.disabled = true; btn.textContent = '⏳ Staging…';
+  try {
+    const res = await fetch(`${API}/stage`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ editor: currentEditor, paths: [...selected] })
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast(`⚠ ${data.detail || 'Staging failed'}`, 'error'); return; }
+    const renamedNote = (data.renamed && data.renamed.length)
+      ? ` (${data.renamed.length} renamed — same filename as another clip)` : '';
+    if (data.count > 0) showToast(`✓ ${data.count} clip${data.count !== 1 ? 's' : ''} staged${renamedNote}`, 'success');
+    if (data.errors && data.errors.length) {
+      const volErr = data.errors.filter(e => e.error && e.error.includes('not mounted'));
+      const othErr = data.errors.filter(e => !(e.error||'').includes('not mounted'));
+      const parts = [];
+      if (volErr.length) parts.push(`${volErr.length} skipped — volume not mounted`);
+      if (othErr.length) parts.push(`${othErr.length} not staged — ${othErr[0].error}`);
+      showToast('⚠ ' + parts.join(' · '), 'error');
+    }
+    selected.clear();
+    updateSelectionUI();
+    document.querySelectorAll('.clip-card.selected,.list-row.selected').forEach(c => c.classList.remove('selected'));
+    loadStaging();
+  } catch(e) {
+    showToast('Staging failed — check server', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '⬇ Stage Clips';
+  }
+}
+
+async function loadStaging() {
+  if (!currentEditor) return;
+  try {
+    const res = await fetch(`${API}/stage/${encodeURIComponent(currentEditor)}`);
+    const data = await res.json();
+    stgTargets = {};
+    (data.clips || []).forEach(c => { if (c.target) stgTargets[c.name] = c.target; });
+    renderStaging(data.clips || []);
+    syncLocalFolder(data.clips || []);
+  } catch(e) { /* silent */ }
+}
+
+// Desktop app (Mac): mirror the staged clips as links in ~/ClipStage/<editor>/ built from THIS Mac's NAS mounts.
+let _stgMissingKey = '';
+async function syncLocalFolder(clips) {
+  if (!currentEditor || !(window.clipstageNative && window.clipstageNative.syncLocal)) return;
+  try {
+    const r = await window.clipstageNative.syncLocal(currentEditor,
+      clips.map(c => ({ name: c.name, target: c.target || '' })));
+    if (!r || !r.ok) return;
+    const key = (r.missing || []).join('|');
+    if (key && key !== _stgMissingKey) {
+      showToast(r.missing.length + ' clip(s) not found on this Mac - mount the NAS volumes (same names as the ClipStage machine)', 'error');
+    }
+    _stgMissingKey = key;
+  } catch (e) { /* silent */ }
+}
+
+function renderStaging(clips) {
+  const list = document.getElementById('stagingList');
+  if (!clips.length) {
+    list.innerHTML = `<div class="staging-empty">No clips staged yet.<br><br>Select clips, then click <strong>Stage Clips</strong>.</div>`;
+    return;
+  }
+  // Sort newest first — last staged clip on top
+  const sorted = [...clips].sort((a,b) => (b.mtime||0) - (a.mtime||0));
+  const _names = new Set(sorted.map(c => c.name));
+  stgSel.forEach(n => { if (!_names.has(n)) stgSel.delete(n); });
+  list.innerHTML = sorted.map((c, i) => {
+    const uid   = c.uid || '';
+    const img   = uid
+      ? `<img src="${API}/thumb/${uid}" alt="" onerror="this.style.display='none';this.nextSibling&&(this.nextSibling.style.display='block')">`
+      : '';
+    const dot   = c.exists ? 'var(--green)' : 'var(--red)';
+    const time  = c.mtime
+      ? new Date(c.mtime * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+      : '';
+    const newBadge = i === 0
+      ? `<span style="background:var(--green);color:#000;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:700">NEW</span>`
+      : '';
+    return `<div class="staging-card${stgSel.has(c.name) ? ' sel' : ''}" draggable="true" data-name="${escapeHtml(c.name)}" style="cursor:grab">
+      <div class="stg-thumb">${img}<span>${uid ? '' : '🎬'}</span></div>
+      <div class="stg-info">
+        <div class="stg-name">${escapeHtml(c.name)}</div>
+        <div class="stg-meta">
+          <span style="color:${dot}">●</span>
+          ${time}
+          ${newBadge}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  stgUpdateCount();
+}
+
+// ── DRAG TO FCP (works only inside the ClipStage Electron app) ─────────────
+const stgSel = new Set();          // selected staged filenames
+let stgTargets = {};               // staged filename -> real NAS path (desktop app: drag + local links)
+let stgLastClicked = null;
+if (window.clipstageNative) document.getElementById('stgSelBar').style.display = 'flex';
+
+function stgCards() { return [...document.querySelectorAll('#stagingList .staging-card')]; }
+function stgUpdateCount() {
+  const el = document.getElementById('stgSelCount');
+  if (el) el.textContent = stgSel.size ? `${stgSel.size} selected - drag any one` : 'Click cards to select several, then drag';
+}
+function stgPaint() { stgCards().forEach(c => c.classList.toggle('sel', stgSel.has(c.dataset.name))); stgUpdateCount(); }
+function stgSelectAll() { stgCards().forEach(c => stgSel.add(c.dataset.name)); stgPaint(); }
+function stgClearSel() { stgSel.clear(); stgLastClicked = null; stgPaint(); }
+
+document.getElementById('stagingList').addEventListener('click', (ev) => {
+  if (!window.clipstageNative) return;
+  const card = ev.target.closest('.staging-card');
+  if (!card) return;
+  const name = card.dataset.name;
+  if (ev.shiftKey && stgLastClicked) {                      // range select
+    const cards = stgCards().map(c => c.dataset.name);
+    const a = cards.indexOf(stgLastClicked), b = cards.indexOf(name);
+    if (a > -1 && b > -1) cards.slice(Math.min(a, b), Math.max(a, b) + 1).forEach(n => stgSel.add(n));
+  } else {
+    stgSel.has(name) ? stgSel.delete(name) : stgSel.add(name);
+    stgLastClicked = name;
+  }
+  stgPaint();
+});
+
+document.getElementById('stagingList').addEventListener('dragstart', (ev) => {
+  const card = ev.target.closest && ev.target.closest('.staging-card');
+  if (!card || !window.clipstageNative || !currentEditor) return;   // normal browser: do nothing
+  ev.preventDefault();                                              // cancel the browser drag
+  const name = card.dataset.name;
+  // dragging a selected card drags the whole selection; otherwise just that card
+  const names = (stgSel.has(name) && stgSel.size > 1) ? [...stgSel] : [name];
+  window.clipstageNative.startDrag(currentEditor, names, names.map(n => stgTargets[n] || ''));
+});
+
+// Desktop app: drag a search result (card or list row) straight into FCP - real NAS path, no staging.
+function canDragPaths() { return !!(window.clipstageNative && window.clipstageNative.startDragPaths); }
+function searchDragHandler(ev) {
+  if (!canDragPaths()) return;                                      // normal browser: do nothing
+  const el = ev.target.closest && ev.target.closest('.clip-card, .list-row');
+  if (!el || !el.dataset.path) return;
+  ev.preventDefault();                                              // cancel the browser drag
+  const p = el.dataset.path;
+  // dragging a selected result drags the whole selection; otherwise just that result
+  const paths = (selected.has(p) && selected.size > 1) ? [...selected] : [p];
+  window.clipstageNative.startDragPaths(paths.slice(0, 200));
+}
+['resultsGrid', 'resultsList'].forEach((id) => {
+  const n = document.getElementById(id);
+  if (n) n.addEventListener('dragstart', searchDragHandler);
+});
+
+async function clearStaging() {
+  if (!currentEditor) { showToast('Select your name first', 'error'); flashEditorSelect(); return; }
+  try {
+    const res = await fetch(`${API}/stage/${encodeURIComponent(currentEditor)}`, { method: 'DELETE' });
+    const data = await res.json();
+    showToast(`Cleared ${data.cleared} clips from staging`, 'success');
+    loadStaging();
+  } catch(e) { showToast('Clear failed', 'error'); }
+}
+
+// ── OPEN FINDER ───────────────────────────────────────────────────────────
+let CLIPSTAGE_SMB_HOST = __CLIPSTAGE_SMB_HOST__;
+let CLIPSTAGE_SHARE = 'staging';
+// The EDITOR's computer decides how the staging folder is opened: Mac -> smb:// in Finder,
+// Windows -> \\HOST\staging\NAME in Explorer (browsers cannot open smb://, so the path is copied).
+const IS_WIN_CLIENT = /Windows/i.test(navigator.userAgent);
+function stagingFolderText(name) {
+  return IS_WIN_CLIENT ? `\\\\${CLIPSTAGE_SMB_HOST || 'SERVER'}\\${CLIPSTAGE_SHARE}\\${name}\\`
+                       : `/Volumes/${CLIPSTAGE_SHARE}/${name}/`;
+}
+function applyClientPlatformText() {
+  const btn = document.getElementById('openFinderBtn');
+  if (btn) btn.textContent = IS_WIN_CLIENT ? '📂 Open staging folder' : '📂 Open in Finder';
+  const pre = document.getElementById('stagingPathPrefix');
+  const suf = document.getElementById('stagingPathSuffix');
+  if (pre) pre.textContent = IS_WIN_CLIENT ? `\\\\${CLIPSTAGE_SMB_HOST || 'SERVER'}\\${CLIPSTAGE_SHARE}\\` : `/Volumes/${CLIPSTAGE_SHARE}/`;
+  if (suf) suf.textContent = IS_WIN_CLIENT ? '\\' : '/';
+  if (!IS_WIN_CLIENT && window.clipstageNative && window.clipstageNative.openLocal) {
+    if (pre) pre.textContent = '~/ClipStage/';
+    const hintLocal = document.getElementById('stagingHint');
+    if (hintLocal) hintLocal.innerHTML = 'Stage clips here, then drag from<br><strong>~/ClipStage/[name]/</strong><br>into FCP &rarr; Leave in Place';
+  }
+  const hint = document.getElementById('stagingHint');
+  if (hint && IS_WIN_CLIENT) {
+    hint.innerHTML = 'Stage clips here, then drag from<br><strong>' + escapeHtml(stagingFolderText('[name]')) +
+                     '</strong><br>into Premiere / Resolve / Avid (leave files in place)';
+  }
+}
+function openFinder() {
+  // Opens the editor's staging folder (Finder on a Mac, Explorer on Windows).
+  if (!currentEditor) { showToast('Select your name first', 'error'); flashEditorSelect(); return; }
+  if (IS_WIN_CLIENT) {
+    if (window.clipstageNative && window.clipstageNative.openStaging) {   // ClipStage desktop app
+      window.clipstageNative.openStaging(currentEditor);
+      return;
+    }
+    const text = stagingFolderText(currentEditor);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text.replace(/\\$/, ''))
+        .then(() => showToast('Folder path copied - paste it into the Explorer address bar', 'success'))
+        .catch(() => window.prompt('Copy this path into Explorer:', text));
+    } else {
+      window.prompt('Copy this path into Explorer:', text);
+    }
+    return;
+  }
+  if (window.clipstageNative && window.clipstageNative.openLocal) {      // desktop app (Mac): the local links folder
+    window.clipstageNative.openLocal(currentEditor);
+    return;
+  }
+  const smbHost = CLIPSTAGE_SMB_HOST || window.prompt('Enter the newsroom staging SMB host (without smb://):');
+  if (!smbHost) return;
+  const host = smbHost.trim().replace(/^smb:\/\//i, '').replace(/\/+$/, '');
+  if (!host || /[/?#]/.test(host)) { showToast('Enter a valid SMB host', 'error'); return; }
+  window.location.href = `smb://${host}/${CLIPSTAGE_SHARE}/${encodeURIComponent(currentEditor)}`;
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 4000);
+}
+
+// ── NOTES / METADATA EDIT ────────────────────────────────────────────────────
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  ));
+}
+
+function openNotesModal(id, filename) {
+  editingClipId = id;
+  const clip = lastHits.find(c => c.id === id);
+  document.getElementById('notesClipName').textContent = filename;
+  document.getElementById('notesTextarea').value  = (clip && clip.notes) || '';
+  document.getElementById('metaTags').value        = (clip && clip.tags_custom) || '';
+  document.getElementById('metaReporter').value    = (clip && clip.reporter) || '';
+  document.getElementById('metaLocation').value    = (clip && clip.location) || '';
+  document.getElementById('metaDesc').value        = (clip && clip.description) || '';
+  document.getElementById('metaUpdatedBy').textContent =
+    (clip && clip.meta_updated_by)
+      ? `Last edited by ${clip.meta_updated_by} at ${clip.meta_updated_at}`
+      : '';
+  // Conflict check
+  const banner = document.getElementById('notesConflictBanner');
+  banner.style.display = 'none';
+  if (id && currentEditor) {
+    fetch(`${API}/lock/${id}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({editor: currentEditor})
+    }).then(r => r.json()).then(d => {
+      if (d.conflict) {
+        banner.textContent = `⚠ ${d.locked_by} is currently editing this clip (since ${d.since})`;
+        banner.style.display = 'block';
+      }
+    }).catch(() => {});
+  }
+  document.getElementById('notesOverlay').classList.add('visible');
+  setTimeout(() => document.getElementById('notesTextarea').focus(), 50);
+}
+
+function closeNotesModal() {
+  document.getElementById('notesOverlay').classList.remove('visible');
+  // Release conflict lock
+  if (editingClipId && currentEditor) {
+    fetch(`${API}/lock/${editingClipId}`, {
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({editor: currentEditor})
+    }).catch(() => {});
+  }
+  editingClipId = null;
+}
+
+async function saveNotes() {
+  if (!editingClipId) return;
+  if (!currentEditor) { showToast('Select your name first', 'error'); flashEditorSelect(); return; }
+  const notes = document.getElementById('notesTextarea').value;
+  const btn = document.getElementById('notesSaveBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  // Save editor details (tags / reporter / location / description) into the index
+  let metaOk = true, metaMsg = '';
+  const metaBody = {
+    editor:      currentEditor,
+    tags:        document.getElementById('metaTags').value.trim(),
+    description: document.getElementById('metaDesc').value.trim(),
+    reporter:    document.getElementById('metaReporter').value.trim(),
+    location:    document.getElementById('metaLocation').value.trim(),
+  };
+  try {
+    const mres = await fetch(`${API}/meta/${encodeURIComponent(editingClipId)}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(metaBody)
+    });
+    if (!mres.ok) {
+      metaOk = false;
+      try { metaMsg = (await mres.json()).detail || ''; } catch (_) {}
+    }
+  } catch(e) { metaOk = false; }
+  try {
+    const res = await fetch(`${API}/clip/${encodeURIComponent(editingClipId)}/notes`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ notes })
+    });
+    if (!res.ok) throw new Error('Save failed');
+    // update local hit so UI refreshes immediately without re-search
+    const clip = lastHits.find(c => c.id === editingClipId);
+    const orig = originalHits.find(c => c.id === editingClipId);
+    [clip, orig].forEach(c => {
+      if (!c) return;
+      c.notes = notes;
+      if (metaOk) {
+        c.tags_custom = metaBody.tags; c.reporter = metaBody.reporter;
+        c.location = metaBody.location; c.description = metaBody.description;
+        c.meta_updated_by = currentEditor;
+      }
+    });
+    closeNotesModal();
+    renderClips(lastHits);
+    showToast(metaOk ? '✓ Notes saved'
+      : '⚠ Notes saved, but the details (tags / reporter / location) were NOT saved' + (metaMsg ? ` — ${metaMsg}` : ''),
+      metaOk ? 'success' : 'error');
+  } catch(e) {
+    showToast('Failed to save notes', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// #11  THEME SELECTOR  (Light / Dark / Midnight)
+// ══════════════════════════════════════════════════════════════════════════════
+function applyThemeByName(name) {
+  document.body.classList.remove('dark', 'midnight');
+  if (name === 'dark')     document.body.classList.add('dark');
+  if (name === 'midnight') document.body.classList.add('midnight');
+  localStorage.setItem('clipstage_theme', name);
+  const sel = document.getElementById('themeSelect');
+  if (sel) sel.value = name;
+}
+(function initTheme() {
+  const saved = localStorage.getItem('clipstage_theme') || 'light';
+  applyThemeByName(saved);
+})();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// #1  SEARCH HISTORY
+// ══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+// #3  FILTER PANEL
+// ══════════════════════════════════════════════════════════════════════════════
+let activeFilters = { volume: '', folder: '', ext: '', sizeMin: '', sizeMax: '' };
+
+function onRankChange() {
+  // Ranking happens on the server (it decides which clips make the top results), so re-search.
+  const q = document.getElementById('searchInput').value.trim();
+  if (q) { sortField = 'none'; document.querySelectorAll('.col-sort').forEach(b => b.classList.remove('active', 'desc')); doSearch(q); }
+}
+
+function onVolumeFilterChange() {
+  // Volume is now a server-side pre-filter (perf), so re-run the actual
+  // search instead of just re-filtering the already-fetched result set.
+  const q = document.getElementById('searchInput').value.trim();
+  if (q) { doSearch(q); return; }
+  populateFilterFolders(originalHits);
+  applyFilters();
+}
+function applyFilters() {
+  activeFilters = {
+    volume:  document.getElementById('filterVolume').value,
+    folder:  document.getElementById('filterFolder').value,
+    ext:     document.getElementById('filterExt').value,
+    sizeMin: document.getElementById('filterSizeMin').value,
+    sizeMax: document.getElementById('filterSizeMax').value,
+  };
+  // filter against originalHits then re-sort
+  if (!originalHits.length) return;
+  let filtered = originalHits.filter(c => {
+    if (activeFilters.volume  && c.volume !== activeFilters.volume) return false;
+    if (activeFilters.folder  && c.folder !== activeFilters.folder) return false;
+    const ext = (c.filename || '').split('.').pop().toUpperCase();
+    if (activeFilters.ext && ext !== activeFilters.ext) return false;
+    if (activeFilters.sizeMin !== '' && (c.size_mb || 0) < parseFloat(activeFilters.sizeMin)) return false;
+    if (activeFilters.sizeMax !== '' && (c.size_mb || 0) > parseFloat(activeFilters.sizeMax)) return false;
+    return true;
+  });
+  lastHits = filtered;
+  renderClips(filtered, true);
+}
+function resetFilters() {
+  document.getElementById('filterVolume').value  = '';
+  document.getElementById('filterFolder').value  = '';
+  document.getElementById('filterExt').value     = '';
+  document.getElementById('filterSizeMin').value = '';
+  document.getElementById('filterSizeMax').value = '';
+  activeFilters = { volume: '', folder: '', ext: '', sizeMin: '', sizeMax: '' };
+  const q = document.getElementById('searchInput').value.trim();
+  if (q) { doSearch(q); return; }  // volume was a server-side scope — re-run to un-scope it
+  populateFilterFolders(originalHits);
+  curPage = 1;
+  if (originalHits.length) { lastHits = [...originalHits]; sortAndRender(); }
+}
+function populateFilterVolumes(hits) {
+  const vols = [...new Set(hits.map(h => h.volume).filter(Boolean))].sort();
+  const sel  = document.getElementById('filterVolume');
+  const cur  = sel.value;
+  sel.innerHTML = '<option value="">All volumes</option>' +
+    vols.map(v => `<option value="${escapeHtml(v)}"${v===cur?' selected':''}>${escapeHtml(v)}</option>`).join('');
+  populateFilterFolders(hits);
+}
+function populateFilterFolders(hits) {
+  // folders scoped to the selected volume (or all volumes if none chosen)
+  const vol  = document.getElementById('filterVolume').value;
+  const pool = vol ? hits.filter(h => h.volume === vol) : hits;
+  const folders = [...new Set(pool.map(h => h.folder).filter(Boolean))].sort();
+  const sel = document.getElementById('filterFolder');
+  const cur = sel.value;
+  const keep = folders.includes(cur) ? cur : '';
+  sel.innerHTML = '<option value="">All folders</option>' +
+    folders.map(f => `<option value="${escapeHtml(f)}"${f===keep?' selected':''}>${escapeHtml(f)}</option>`).join('');
+  if (cur && !keep) sel.value = '';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// #4  BULK NOTES
+// ══════════════════════════════════════════════════════════════════════════════
+function openBulkNotesModal() {
+  const n = selected.size;
+  if (!n) return;
+  document.getElementById('bulkNotesSub').textContent = `Applying to ${n} selected clip${n>1?'s':''}`;
+  document.getElementById('bulkNotesTextarea').value = '';
+  document.getElementById('bulkNotesOverlay').classList.add('visible');
+  setTimeout(() => document.getElementById('bulkNotesTextarea').focus(), 50);
+}
+function closeBulkNotesModal() {
+  document.getElementById('bulkNotesOverlay').classList.remove('visible');
+}
+async function saveBulkNotes() {
+  const notes = document.getElementById('bulkNotesTextarea').value;
+  const ids   = selectedIds();
+  if (!ids.length) { showToast('Selected clips are not in the current results — search for them again', 'error'); return; }
+  const btn   = document.getElementById('bulkNotesSaveBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await fetch(`${API}/clips/bulk-notes`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ ids, notes })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error('Save failed');
+    // update local hits
+    const ids_ok = new Set(data.ok || []);
+    [...lastHits, ...originalHits].forEach(c => { if (ids_ok.has(c.id)) c.notes = notes; });
+    closeBulkNotesModal();
+    renderClips(lastHits);
+    showToast((data.failed && data.failed.length)
+      ? `⚠ Notes saved to ${data.ok.length}, failed for ${data.failed.length}`
+      : `✓ Notes saved to ${data.ok.length} clip${data.ok.length>1?'s':''}`,
+      (data.failed && data.failed.length) ? 'error' : 'success');
+  } catch(e) {
+    showToast('Failed to save notes', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save All';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// #5  REMOVE FROM INDEX
+// ══════════════════════════════════════════════════════════════════════════════
+async function removeSelected() {
+  const n = selected.size;
+  if (!n) return;
+  if (!isAdminRole()) { showToast('Only an admin can hide clips', 'error'); return; }
+  if (!confirm(`Hide ${n} clip${n>1?'s':''} from search?\n\nThe files are NOT deleted and a re-index will not bring them back. An admin can restore them later.`)) return;
+  const paths = [...selected];
+  let ok = 0, fail = 0;
+  for (const p of paths) {
+    const uid = pathToId.get(p);
+    if (!uid) { fail++; continue; }
+    try {
+      const res = await fetch(`${API}/clip/${encodeURIComponent(uid)}`, { method: 'DELETE' });
+      if (res.ok) {
+        ok++;
+        lastHits = lastHits.filter(c => c.id !== uid);
+        originalHits = originalHits.filter(c => c.id !== uid);
+        selected.delete(p);
+      } else { fail++; if (res.status === 403) showToast('Only an admin can hide clips', 'error'); }
+    } catch { fail++; }
+  }
+  updateSelectionUI();
+  renderClips(lastHits);
+  if (ok)   showToast(`✓ Removed ${ok} clip${ok>1?'s':''} from index`, 'success');
+  if (fail) showToast(`${fail} clip${fail>1?'s':''} could not be removed`, 'error');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// #13  KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════════════════════════════════════════
+// ── CLEAR SELECTION (#12) ──────────────────────────────────────────────────
+function clearSelection() {
+  selected.clear();
+  document.querySelectorAll('.clip-card.selected, .list-row.selected')
+    .forEach(el => el.classList.remove('selected'));
+  updateSelectionUI();
+}
+
+// ── INDEXER / SYNC (#10) ───────────────────────────────────────────────────
+async function runIndexer() {
+  const btn = document.getElementById('indexerBtn');
+
+  // No client-side login check: you are already signed in, and the server (require_admin)
+  // decides. 401 -> sign-in screen (global fetch wrapper), 403 -> 'admin only' toast below.
+
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor"
+    stroke-width="2" viewBox="0 0 24 24" style="animation:spin .7s linear infinite">
+    <polyline points="23 4 23 10 17 10"/>
+    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+  </svg> Syncing…`;
+
+  try {
+    // Volumes ticked in the picker added by indexer_status.js ([] = All volumes = normal full run)
+    const pickedVols = window.clipstageSelectedVolumes ? window.clipstageSelectedVolumes() : [];
+    const scopeVol = pickedVols.join(',');
+    const res = await fetch(`${API}/admin/run-indexer` +
+      (scopeVol ? `?volume=${encodeURIComponent(scopeVol)}` : ''), {
+      method: 'POST'
+    });
+
+    if (res.status === 401) {
+      throw new Error('Session expired — please log in again');
+    }
+
+    if (res.status === 403) {
+      throw new Error('Only admin accounts can run the indexer');
+    }
+
+    if (res.status === 409) {
+      showToast('Indexer is already running', 'error');
+      return;
+    }
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}${text ? ': ' + text : ''}`);
+    }
+
+    showToast('✓ Indexer started', 'success');
+
+    if (typeof loadIndexerStatus === 'function') {
+      loadIndexerStatus();
+    }
+
+  } catch (e) {
+    showToast('Could not start indexer: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor"
+      stroke-width="2" viewBox="0 0 24 24">
+      <polyline points="23 4 23 10 17 10"/>
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+    </svg> Sync Index`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// #13  KEYBOARD SHORTCUTS  (enhanced with grid L/R/U/D, list L/R)
+// ══════════════════════════════════════════════════════════════════════════════
+let kbFocusIdx = -1;
+
+document.addEventListener('keydown', e => {
+  const tag     = document.activeElement.tagName;
+  const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+  const anyModal = document.getElementById('notesOverlay').classList.contains('visible') ||
+                   document.getElementById('bulkNotesOverlay').classList.contains('visible');
+
+  // Ctrl/Cmd + K → focus search
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+    document.getElementById('searchInput').select();
+    return;
+  }
+
+  // Ctrl/Cmd + O → Open in Finder
+  if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+    e.preventDefault();
+    const btn = document.getElementById('openFinderBtn');
+    if (btn && btn.classList.contains('visible')) openFinder();
+    return;
+  }
+
+  // Escape → close player / close modal / clear search (in that priority —
+  // never more than one of these per keypress).
+  if (e.key === 'Escape') {
+    if (document.getElementById('playerModal').classList.contains('open')) { closePlayer(); return; }
+    if (anyModal) { closeNotesModal(); closeBulkNotesModal(); return; }
+    const inp = document.getElementById('searchInput');
+    if (inp.value) { inp.value = ''; showEmpty(); return; }
+    return;
+  }
+
+  if (inInput || anyModal) return;
+
+  const cards = [...document.querySelectorAll('.clip-card, .list-row')];
+  if (!cards.length) return;
+
+  const isGrid = currentView === 'grid';
+
+  // Calculate grid column count dynamically
+  function gridCols() {
+    const grid = document.getElementById('resultsGrid');
+    if (!grid || !grid.firstElementChild) return 1;
+    const gridWidth = grid.offsetWidth;
+    const cardWidth = grid.firstElementChild.offsetWidth;
+    return Math.max(1, Math.round(gridWidth / cardWidth));
+  }
+
+  function moveFocus(newIdx) {
+    newIdx = Math.max(0, Math.min(newIdx, cards.length - 1));
+    kbFocusIdx = newIdx;
+    cards.forEach((c, i) => c.style.outline = i === kbFocusIdx ? '2px solid var(--accent)' : '');
+    cards[kbFocusIdx]?.scrollIntoView({ block: 'nearest' });
+  }
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    moveFocus(isGrid ? kbFocusIdx + gridCols() : kbFocusIdx + 1);
+    return;
+  }
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    moveFocus(isGrid ? kbFocusIdx - gridCols() : kbFocusIdx - 1);
+    return;
+  }
+  if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    moveFocus(kbFocusIdx + 1);
+    return;
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    moveFocus(kbFocusIdx - 1);
+    return;
+  }
+
+  // Space → select focused card
+  if (e.key === ' ' && kbFocusIdx >= 0 && kbFocusIdx < cards.length) {
+    e.preventDefault();
+    cards[kbFocusIdx].click();
+    return;
+  }
+
+  // Enter → stage selected
+  if (e.key === 'Enter' && selected.size > 0) {
+    e.preventDefault();
+    stageSelected();
+  }
+});
+
+// ── CONFLICT CHECK ───────────────────────────────────────────────────────────
+async function checkConflictsBeforeStage(paths) {
+  if (!paths.length) return true;
+  try {
+    const res  = await fetch(`${API}/check-conflicts`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({editor: currentEditor, paths}),
+    });
+    const data = await res.json();
+    if (data.has_conflicts) {
+      const names = data.conflicts.map(c =>
+        `${c.path.split('/').pop()} (used by ${c.locked_by})`).join('\n');
+      return confirm(`⚠ These clips are in use by another editor:\n\n${names}\n\nStage anyway?`);
+    }
+    return true;
+  } catch(e) { return true; }
+}
+
+if (getStoredSession()) {
+  startClipstageApp();
+} else {
+  let signedOut = false;
+  try { signedOut = sessionStorage.getItem('clipstage_signed_out') === '1'; sessionStorage.removeItem('clipstage_signed_out'); } catch (e) {}
+  showAuthGate(signedOut ? 'You have been signed out.' : 'Sign in with your newsroom account to continue.', true);
+}
+</script>
+<!-- VIDEO PLAYER MODAL -->
+<div id="playerModal" onclick="if(event.target===this)closePlayer()">
+  <div id="playerWrap">
+    <button id="playerClose" onclick="closePlayer()">✕</button>
+    <video id="playerVideo" controls autoplay></video>
+  </div>
+  <div id="playerTitle"></div>
+</div>
+<script src="/static/indexer_status.js"></script>
+</body>
+</html>

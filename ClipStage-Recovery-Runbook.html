@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClipStage backup and recovery runbook</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#14233b; --muted:#5b6778; --line:#d9dee6;
+  --navy:#0a2347; --amber:#d98a0b; --amber-soft:#fdf1da; --code-bg:#0f1e36; --code-ink:#e6edf7;
+  --warn-bg:#fff4e0; --warn-line:#e7b45c; --ok:#1d7a4a;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c1524; --card:#142038; --ink:#e7edf6; --muted:#9aa8bc; --line:#26354f;
+    --navy:#9ec1ff; --amber:#f0a52a; --amber-soft:#2a2314; --code-bg:#08101d; --code-ink:#dbe6f5;
+    --warn-bg:#2b2412; --warn-line:#8a6a22; --ok:#5fcf93;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 80px}
+header{display:flex;gap:16px;align-items:center;margin-bottom:8px}
+.mark{width:54px;height:54px;border-radius:14px;background:#001b3d;display:grid;place-items:center;flex:none}
+.mark svg{width:34px;height:34px}
+h1{font-size:1.6rem;line-height:1.2;margin:0;color:var(--navy)}
+.sub{color:var(--muted);margin:2px 0 0}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 8px}
+.jump a{padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);
+  color:var(--ink);text-decoration:none;font-size:.92rem}
+.jump a:hover,.jump a:focus-visible{border-color:var(--amber);outline:none}
+h2{font-size:1.3rem;margin:44px 0 6px;color:var(--navy)}
+h2 + p{margin-top:0;color:var(--muted)}
+.step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+.step h3{margin:0 0 6px;font-size:1.05rem;display:flex;gap:10px;align-items:flex-start}
+.step h3 .n{flex:none;min-width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--card);
+  display:grid;place-items:center;font-size:.85rem;font-weight:700}
+.step h3 label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;flex:1}
+.step h3 input{margin-top:6px;accent-color:var(--ok);width:18px;height:18px;flex:none}
+.step.done{border-color:var(--ok)}
+.step.done h3 span.t{text-decoration:line-through;opacity:.6}
+.step p{margin:8px 0}
+.step ul{margin:8px 0 8px 1.2em;padding:0}
+.code{position:relative;margin:10px 0}
+.code pre{margin:0;padding:12px 70px 12px 14px;background:var(--code-bg);color:var(--code-ink);border-radius:8px;
+  overflow-x:auto;font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}
+.code button{position:absolute;top:8px;right:8px;padding:4px 10px;border-radius:6px;border:1px solid #3b4d6b;
+  background:#1b2c49;color:#dbe6f5;font-size:.8rem;cursor:pointer}
+.code button:hover,.code button:focus-visible{border-color:var(--amber);outline:none}
+.code.file pre{border-top-left-radius:0;border-top-right-radius:0}
+.code.file .fname{background:#1b2c49;color:#f0c777;padding:7px 14px;border-radius:8px 8px 0 0;
+  font:600 13px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.code.file .fname small{color:#9fb1cc;font-weight:400;margin-left:8px}
+.code.file button{top:4px}
+.note,.warn{border-radius:10px;padding:12px 14px;margin:12px 0;font-size:.95rem}
+.note{background:var(--amber-soft);border:1px solid var(--line)}
+.warn{background:var(--warn-bg);border:1px solid var(--warn-line)}
+code.i{font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--amber-soft);
+  padding:1px 6px;border-radius:5px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;
+  overflow:hidden;font-size:.95rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--amber-soft)}
+tr:last-child td{border-bottom:none}
+.tablewrap{overflow-x:auto}
+footer{margin-top:50px;color:var(--muted);font-size:.88rem}
+button.reset{margin-top:10px;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);
+  color:var(--ink);cursor:pointer}
+@media print{
+  body{background:#fff;color:#000}
+  .jump,.code button,button.reset{display:none}
+  .step,.note,.warn{break-inside:avoid;border-color:#999}
+  .code pre{background:#f1f1f1;color:#000;padding:10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="mark" aria-hidden="true">
+    <svg viewBox="0 0 64 64"><path d="M20 8H12a4 4 0 0 0-4 4v8M44 8h8a4 4 0 0 1 4 4v8M20 56h-8a4 4 0 0 1-4-4v-8M44 56h8a4 4 0 0 0 4-4v-8" fill="none" stroke="#e6edf7" stroke-width="5" stroke-linecap="round"/><path d="M26 20v24l22-12z" fill="#f0a52a" stroke="#f0a52a" stroke-width="3" stroke-linejoin="round"/></svg>
+  </div>
+  <div>
+    <h1>ClipStage backup and recovery runbook</h1>
+    <p class="sub">Search &bull; Stage &bull; Edit &mdash; get ClipStage running again on a new Mac after an outage</p>
+  </div>
+</header>
+
+<nav class="jump" aria-label="Sections">
+  <a href="#how">How it fits together</a>
+  <a href="#prepare">A. Prepare now</a>
+  <a href="#recover">B. Recover</a>
+  <a href="#editors">C. Editors</a>
+  <a href="#scripts">D. Scripts and settings</a>
+  <a href="#fix">Troubleshooting</a>
+</nav>
+
+<div class="warn">
+  <strong>Not yet tested end to end.</strong> Do one trial restore on the new Mac while the old one still works, so the first real attempt is not during an outage.
+</div>
+
+<h2 id="how">How it fits together</h2>
+<p>ClipStage keeps its data in four places. Backing up the right ones is what makes recovery fast.</p>
+<div class="tablewrap">
+<table>
+<tr><th>What</th><th>Where it lives</th><th>Rebuilt from the NAS?</th></tr>
+<tr><td>Notes, details, use counts, audit log, hidden flags</td><td><code class="i">clipstage.db</code> (backed up nightly to <code class="i">backups/db/</code>)</td><td>No. Back this up.</td></tr>
+<tr><td>Editor list</td><td><code class="i">editors.json</code></td><td>No. Back this up.</td></tr>
+<tr><td>Search index with durations</td><td>Typesense (<code class="i">~/typesense-data</code>)</td><td>Yes, but a full scan takes about 3 hours. A snapshot restores it in minutes.</td></tr>
+<tr><td>Thumbnails</td><td><code class="i">static/thumbs</code></td><td>Yes, but regenerating takes days at 5,000 a night.</td></tr>
+<tr><td>Settings and keys</td><td><code class="i">.env</code></td><td>No. Back this up.</td></tr>
+</table>
+</div>
+<div class="note">Use a folder name with <strong>no spaces</strong> on the new Mac, for example <code class="i">~/ClipStage</code>. A space in the folder name broke the first install.</div>
+
+<h2 id="prepare">A. Prepare now, while the old Mac works</h2>
+<p>Do this once. The nightly job then keeps it current.</p>
+
+<div class="step" data-id="a1">
+  <h3><label><input type="checkbox"><span class="n">1</span><span class="t">Confirm the full scan has finished</span></label></h3>
+  <div class="code"><pre>cd "/Users/JANAM_EDIT_08/Documents/Karthik/ClipStage"
+./clipstage.sh status</pre><button>Copy</button></div>
+  <p>The progress bar in the app should be gone and "Full run" should show a date. A snapshot does not need another scan. It only exports what the scan already built.</p>
+</div>
+
+<div class="step" data-id="a2">
+  <h3><label><input type="checkbox"><span class="n">2</span><span class="t">Add the snapshot script</span></label></h3>
+  <p>Create <code class="i">snapshot_index.py</code> in the ClipStage folder, next to <code class="i">indexer.py</code>. The full file is in <a href="#scripts">section D</a>.</p>
+</div>
+
+<div class="step" data-id="a3">
+  <h3><label><input type="checkbox"><span class="n">3</span><span class="t">Run the first snapshot by hand</span></label></h3>
+  <div class="code"><pre>./clipstage_run.sh snapshot_index.py</pre><button>Copy</button></div>
+  <p>It should print <code class="i">Backup written: ... (23,092 clips)</code>. A file named <code class="i">clips_&lt;date&gt;_&lt;time&gt;.jsonl</code> appears in <code class="i">backups/</code>.</p>
+</div>
+
+<div class="step" data-id="a4">
+  <h3><label><input type="checkbox"><span class="n">4</span><span class="t">Make the snapshot run every night</span></label></h3>
+  <div class="code"><pre>open -e nightly_index.sh</pre><button>Copy</button></div>
+  <p>Find the line that runs <code class="i">backup_db.py</code> near the bottom. Add these lines just above it, then save:</p>
+  <div class="code"><pre>"$PYTHON" snapshot_index.py || clipstage_alert "Index snapshot failed - see indexer.log"</pre><button>Copy</button></div>
+  <p>No reinstall is needed. The nightly job reads this file each time it runs. The newest 7 snapshots are kept.</p>
+</div>
+
+<div class="step" data-id="a5">
+  <h3><label><input type="checkbox"><span class="n">5</span><span class="t">Keep copies off this Mac</span></label></h3>
+  <p>A backup on the same disk will not survive a dead disk. Copy these to a NAS folder or an external disk regularly:</p>
+  <ul>
+    <li><code class="i">.env</code></li>
+    <li><code class="i">backups/db/</code> (database copies and <code class="i">editors.json</code>)</li>
+    <li>the newest <code class="i">backups/clips_*.jsonl</code></li>
+    <li><code class="i">static/thumbs</code></li>
+  </ul>
+  <p>To send the database backups to the NAS automatically, set this in <code class="i">.env</code>:</p>
+  <div class="code"><pre>CLIPSTAGE_BACKUP_DIR=/Volumes/SHARE FOLDER/clipstage-backups</pre><button>Copy</button></div>
+  <p>The index snapshots stay in the local <code class="i">backups</code> folder, so copy those by hand or with a scheduled copy.</p>
+</div>
+
+<h2 id="recover">B. Recover on the new Mac</h2>
+<p>Follow these in order. Each step needs the one before it.</p>
+
+<div class="step" data-id="b1">
+  <h3><label><input type="checkbox"><span class="n">1</span><span class="t">Install ClipStage in a folder with no spaces</span></label></h3>
+  <div class="code"><pre>cd ~
+unzip ClipStage-v5_1_3-mac-windows.zip
+cd ~/ClipStage
+bash install-mac-host.sh</pre><button>Copy</button></div>
+  <p>If the zip unpacks into a different folder name, move or rename it to <code class="i">~/ClipStage</code> first. When the installer offers the first index, skip it.</p>
+</div>
+
+<div class="step" data-id="b2">
+  <h3><label><input type="checkbox"><span class="n">2</span><span class="t">Mount the NAS volumes under the same names</span></label></h3>
+  <p>Use the same names as before: EDIT, EDIT2, INGEST, PLAYOUT, DIGITAL, SHARE FOLDER, TRANSCODER. The saved clip paths depend on them. The installer's mount step does this.</p>
+</div>
+
+<div class="step" data-id="b3">
+  <h3><label><input type="checkbox"><span class="n">3</span><span class="t">Stop the API before replacing files</span></label></h3>
+  <div class="code"><pre>cd ~/ClipStage
+./clipstage.sh stop</pre><button>Copy</button></div>
+  <p>If <code class="i">stop</code> is not accepted, continue. Step 5 restarts everything anyway.</p>
+</div>
+
+<div class="step" data-id="b4">
+  <h3><label><input type="checkbox"><span class="n">4</span><span class="t">Copy the backed-up files into ~/ClipStage</span></label></h3>
+  <ul>
+    <li><code class="i">.env</code>. Check that any paths inside still fit this Mac.</li>
+    <li>the latest <code class="i">clipstage-YYYY-MM-DD.db</code> from <code class="i">backups/db/</code>, renamed to <code class="i">clipstage.db</code></li>
+    <li><code class="i">editors.json</code></li>
+    <li>the newest <code class="i">clips_*.jsonl</code> into <code class="i">backups/</code></li>
+    <li>the thumbnails into <code class="i">static/thumbs</code></li>
+  </ul>
+</div>
+
+<div class="step" data-id="b5">
+  <h3><label><input type="checkbox"><span class="n">5</span><span class="t">Start the services and check them</span></label></h3>
+  <div class="code"><pre>./clipstage.sh restart
+sleep 30
+./clipstage.sh status</pre><button>Copy</button></div>
+  <p>The API and Typesense should both show <code class="i">running</code>. If not, see Troubleshooting.</p>
+</div>
+
+<div class="step" data-id="b6">
+  <h3><label><input type="checkbox"><span class="n">6</span><span class="t">Restore the search index from the snapshot</span></label></h3>
+  <div class="code"><pre>ls backups/clips_*.jsonl
+./clipstage_run.sh indexer.py --restore backups/clips_YYYYMMDD_HHMMSS.jsonl</pre><button>Copy</button></div>
+  <p>Replace the file name with the newest one from the <code class="i">ls</code> list. This takes minutes. It also re-applies notes, use counts and hidden flags from <code class="i">clipstage.db</code>.</p>
+</div>
+
+<div class="step" data-id="b7">
+  <h3><label><input type="checkbox"><span class="n">7</span><span class="t">Catch up on changes since the snapshot</span></label></h3>
+  <div class="code"><pre>./clipstage.sh index</pre><button>Copy</button></div>
+  <p>This reuses the saved durations and only checks new or changed files. Watch progress in the app or with <code class="i">./clipstage.sh logs</code>.</p>
+</div>
+
+<div class="step" data-id="b8">
+  <h3><label><input type="checkbox"><span class="n">8</span><span class="t">Check that it works</span></label></h3>
+  <ul>
+    <li>Open <code class="i">http://&lt;new-ip&gt;:8000</code> and sign in.</li>
+    <li>Search for a word and confirm results appear.</li>
+    <li>Confirm thumbnails show on the clips.</li>
+    <li>Open a few clips you know have notes and confirm the notes are there.</li>
+  </ul>
+  <div class="note">Keep the Mac awake while it serves editors: turn off automatic sleeping on the power adapter, keep it plugged in, and stay logged in (lock the screen instead of logging out). The services stop if the user logs out.</div>
+</div>
+
+<h2 id="editors">C. Point the editors at the new Mac</h2>
+<p>The new Mac has a different address than the old <code class="i">10.1.10.165</code>. Choose one way:</p>
+<div class="step">
+  <p><strong>Keep the old address.</strong> Ask your network admin to reserve <code class="i">10.1.10.165</code> for the new Mac once the old one is off. Editors change nothing.</p>
+  <p><strong>Use a new address.</strong> Tell editors the new address. On each editor Mac, run:</p>
+  <div class="code"><pre>bash install-mac-editor.sh --host &lt;new-ip&gt;</pre><button>Copy</button></div>
+  <p>Windows editors: follow <code class="i">INSTALL-QUICKSTART.md</code> (<code class="i">install-win-editor.ps1</code>).</p>
+</div>
+<div class="warn">Keep only one Mac live for editors at a time. Two live systems would split notes and staging between them.</div>
+
+<h2 id="scripts">D. Scripts and settings</h2>
+<p>Everything you need to create or change, with the file name and where it goes. Use <strong>Copy</strong>, then paste.</p>
+
+<div class="step">
+  <h3><span class="t">1. snapshot_index.py (new file)</span></h3>
+  <p><strong>Where:</strong> the ClipStage folder, next to <code class="i">indexer.py</code>.</p>
+  <p><strong>Create it:</strong> in Terminal run <code class="i">nano snapshot_index.py</code>, paste the code, press Ctrl+O, Enter, then Ctrl+X. Avoid TextEdit unless it is set to plain text.</p>
+  <div class="code file"><div class="fname">snapshot_index.py<small>save in the ClipStage folder</small></div><pre>#!/usr/bin/env python3
+&quot;&quot;&quot;
+ClipStage - write a snapshot of the search index (durations included) to backups/clips_&lt;time&gt;.jsonl.
+
+    ./clipstage_run.sh snapshot_index.py
+
+Restore on a new machine (after install + same volume names):
+    ./clipstage_run.sh indexer.py --restore backups/clips_YYYYmmdd_HHMMSS.jsonl
+
+Keeps the newest 7 snapshots. Refuses to write an empty snapshot.
+&quot;&quot;&quot;
+import sys
+
+import indexer  # importing does not start a scan (main code is under __main__)
+
+docs = indexer._load_existing_docs()
+if not docs:
+    print(&quot;Index is empty or unreachable - no snapshot written.&quot;)
+    sys.exit(1)
+indexer.backup_existing(docs, keep=7)</pre><button>Copy</button></div>
+  <p><strong>Run it:</strong> <code class="i">./clipstage_run.sh snapshot_index.py</code>. It writes <code class="i">backups/clips_&lt;time&gt;.jsonl</code> and keeps the newest 7. It refuses to write an empty snapshot. Run it after a scan finishes, because a snapshot taken mid-scan only holds the clips indexed so far.</p>
+  <p><strong>Restore with it:</strong> <code class="i">./clipstage_run.sh indexer.py --restore backups/clips_&lt;time&gt;.jsonl</code></p>
+</div>
+
+<div class="step">
+  <h3><span class="t">2. nightly_index.sh (edit the existing file)</span></h3>
+  <p><strong>Where:</strong> the ClipStage folder. Open it with <code class="i">open -e nightly_index.sh</code>.</p>
+  <p><strong>What to change:</strong> add the two snapshot lines just above the existing <code class="i">backup_db.py</code> line at the bottom. The block below shows the end of the file after the change. Add only the snapshot lines and leave everything else as it is.</p>
+  <div class="code file"><div class="fname">nightly_index.sh<small>add to the end of the file</small></div><pre># ...existing lines above...
+
+# Nightly snapshot of the index (for quick rebuild on a new Mac)
+&quot;$PYTHON&quot; snapshot_index.py || clipstage_alert &quot;Index snapshot failed - see indexer.log&quot;
+
+# Nightly copy of clipstage.db (notes/details/audit - cannot be rebuilt). See backup_db.py.
+&quot;$PYTHON&quot; backup_db.py || clipstage_alert &quot;clipstage.db backup failed - see indexer.log&quot;</pre><button>Copy</button></div>
+  <p>No reinstall is needed. launchd runs this file directly each night at 17:00.</p>
+</div>
+
+<div class="step">
+  <h3><span class="t">3. .env (add lines)</span></h3>
+  <p><strong>Where:</strong> the ClipStage folder. It is a hidden file, so open it with <code class="i">open -e .env</code>.</p>
+  <p><strong>What to change:</strong> add the lines you want. Each is optional. If a name already exists in the file, edit that line instead of adding a second one.</p>
+  <div class="code file"><div class="fname">.env<small>add to the file</small></div><pre># Send database backups to the NAS (keep a copy off this Mac)
+CLIPSTAGE_BACKUP_DIR=/Volumes/SHARE FOLDER/clipstage-backups
+
+# New thumbnails made by the nightly job (default 5000)
+CLIPSTAGE_THUMBS_LIMIT=5000
+
+# Parallel duration reads during a scan (default 8, optional)
+CLIPSTAGE_PROBE_THREADS=8</pre><button>Copy</button></div>
+  <p>Restart after changing <code class="i">.env</code>: <code class="i">./clipstage.sh restart</code>. The nightly job reads it on its next run without a restart.</p>
+</div>
+
+<div class="step">
+  <h3><span class="t">4. Commands you will use again</span></h3>
+  <div class="code file"><div class="fname">Terminal<small>run inside the ClipStage folder</small></div><pre>./clipstage.sh status                     # is everything running
+./clipstage.sh restart                    # restart the API
+./clipstage.sh logs                       # watch the indexer
+./clipstage.sh index                      # start an index run
+./clipstage.sh thumbs 25000               # make up to 25,000 new thumbnails
+./clipstage_run.sh snapshot_index.py      # save an index snapshot now
+./clipstage_run.sh indexer.py --reprobe   # retry blank durations</pre><button>Copy</button></div>
+</div>
+
+<h2 id="fix">Troubleshooting</h2>
+<div class="tablewrap">
+<table>
+<tr><th>Symptom</th><th>Likely cause and fix</th></tr>
+<tr><td>Status shows the API as NOT running</td><td>Read the newest log lines: <code class="i">tail -n 20 api.log</code>. If you see "Operation not permitted", the folder is inside Documents or has a space in its name. Move it to <code class="i">~/ClipStage</code> and reinstall the services with <code class="i">bash install_api_service.sh</code>, <code class="i">bash install_nightly.sh</code> and <code class="i">bash install_mountwatch.sh</code>.</td></tr>
+<tr><td>Browser says "refused to connect"</td><td>The API is not running. Same fix as above. Test it in the foreground with <code class="i">./start_clipstage.sh</code> to see the real error.</td></tr>
+<tr><td>Restore finds no clips on screen</td><td>Check that Typesense is running and that <code class="i">.env</code> has the same <code class="i">TYPESENSE_KEY</code> as before.</td></tr>
+<tr><td>Clips show but will not play or stage</td><td>The NAS volumes are not mounted under the same names. Run <code class="i">bash mount_volumes.sh</code> and check <code class="i">/Volumes</code>.</td></tr>
+<tr><td>Thumbnails missing</td><td>Copy <code class="i">static/thumbs</code> back, or run <code class="i">./clipstage.sh thumbs 25000</code>. The nightly job also makes 5,000 a night.</td></tr>
+<tr><td>Duration shows "-" on some clips</td><td>The scan has not reached them, or the file could not be read. Run <code class="i">./clipstage_run.sh indexer.py --reprobe</code>.</td></tr>
+</table>
+</div>
+
+<button class="reset" id="reset">Clear all checkmarks</button>
+
+<footer>
+  Commands assume the default ClipStage v5.1.3 layout. Folder names, volume names and the old address are from your setup. Edit them here if your setup changes.
+</footer>
+
+</div>
+<script>
+(function(){
+  var KEY="clipstage-runbook-v1", saved={};
+  try{ saved=JSON.parse(localStorage.getItem(KEY)||"{}"); }catch(e){ saved={}; }
+  function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(saved)); }catch(e){} }
+  document.querySelectorAll(".step[data-id]").forEach(function(step){
+    var id=step.getAttribute("data-id"), box=step.querySelector("input[type=checkbox]");
+    if(!box) return;
+    if(saved[id]){ box.checked=true; step.classList.add("done"); }
+    box.addEventListener("change",function(){
+      step.classList.toggle("done",box.checked);
+      saved[id]=box.checked; persist();
+    });
+  });
+  document.getElementById("reset").addEventListener("click",function(){
+    saved={}; persist();
+    document.querySelectorAll(".step[data-id]").forEach(function(s){
+      s.classList.remove("done"); var b=s.querySelector("input[type=checkbox]"); if(b) b.checked=false;
+    });
+  });
+  document.querySelectorAll(".code button").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var text=btn.parentNode.querySelector("pre").innerText;
+      function ok(){ btn.textContent="Copied"; setTimeout(function(){btn.textContent="Copy";},1400); }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(ok,function(){ fallback(text); ok(); });
+      }else{ fallback(text); ok(); }
+    });
+  });
+  function fallback(t){
+    var a=document.createElement("textarea"); a.value=t; a.style.position="fixed"; a.style.opacity="0";
+    document.body.appendChild(a); a.select();
+    try{ document.execCommand("copy"); }catch(e){}
+    document.body.removeChild(a);
+  }
+})();
+</script>
+</body>
+</html>

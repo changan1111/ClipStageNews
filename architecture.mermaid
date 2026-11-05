@@ -1,0 +1,46 @@
+flowchart TB
+    subgraph CLIENT["Editors' browsers"]
+        UI["index.html + indexer_status.js<br/>search · preview · notes · stage"]
+    end
+
+    subgraph HOST["ClipStage host - macOS"]
+        PROXY["HTTPS reverse proxy (Caddy)<br/>optional but recommended"]
+        API["api.py - FastAPI, one worker<br/>login cache · roles · CSRF · rate limit<br/>stream cap · result cap · audit"]
+        DB[("clipstage.db - SQLite<br/>notes · details · use counts<br/>hidden flag · locks · audit<br/>SOURCE OF TRUTH for user data")]
+        STAGE[("Staging folders<br/>/Users/Shared/staging/EDITOR<br/>symlinks only")]
+        LOCAL[("Runtime files<br/>index_status.json · backups/<br/>static/thumbs/ · indexer.log")]
+        SCHED["launchd 17:00<br/>nightly_index.sh"]
+        IDX["indexer.py<br/>scan · ffprobe · prune guard<br/>backup before --force · --restore"]
+        THUMBS["generate_thumbs.py<br/>atomic writes · retry window"]
+        CFG["clipstage_config.py + .env<br/>one source of truth"]
+    end
+
+    TS[("Typesense - clips_v2<br/>search index only<br/>rebuildable any time")]
+    SB["Supabase Auth<br/>login · role · expiry · editor_name"]
+    NAS[("NAS volumes - /Volumes<br/>footage is never copied or written")]
+    FF["ffmpeg / ffprobe"]
+
+    UI -->|"HTTPS (or HTTP on the LAN)"| PROXY
+    PROXY --> API
+    API -->|"verify token, cached 60 s"| SB
+    API <-->|"search"| TS
+    API <-->|"read / write"| DB
+    API -->|"mirror notes for search"| TS
+    API -->|"live preview"| FF
+    FF -->|"read"| NAS
+    API -->|"create links"| STAGE
+    STAGE -.->|"absolute-path symlinks"| NAS
+
+    SCHED --> IDX
+    SCHED --> THUMBS
+    IDX -->|"scan + probe"| NAS
+    IDX -->|"upsert clips, merge user data"| TS
+    IDX -->|"read user data"| DB
+    IDX -->|"status + backups"| LOCAL
+    THUMBS -->|"read clip list"| TS
+    THUMBS -->|"grab one frame"| NAS
+    THUMBS -->|"write jpg"| LOCAL
+
+    CFG -.-> API
+    CFG -.-> IDX
+    CFG -.-> THUMBS

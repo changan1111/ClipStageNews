@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Add HTTPS to ClipStage with Caddy</title>
+<style>
+:root {
+  --bg: #f1f5f6;
+  --surface: #ffffff;
+  --ink: #14232b;
+  --muted: #566870;
+  --line: #d3dde1;
+  --accent: #0d6574;
+  --code-bg: #0f1e26;
+  --code-ink: #d6edf1;
+  --note-bg: #e3f0f2;
+  --warn-bg: #fbefd9;
+  --warn-line: #d9a441;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1519;
+    --surface: #141f25;
+    --ink: #e5eef1;
+    --muted: #93a6ae;
+    --line: #25353d;
+    --accent: #5cc3d3;
+    --code-bg: #091217;
+    --code-ink: #d6edf1;
+    --note-bg: #14282e;
+    --warn-bg: #2b2412;
+    --warn-line: #a47a22;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1519;
+  --surface: #141f25;
+  --ink: #e5eef1;
+  --muted: #93a6ae;
+  --line: #25353d;
+  --accent: #5cc3d3;
+  --code-bg: #091217;
+  --code-ink: #d6edf1;
+  --note-bg: #14282e;
+  --warn-bg: #2b2412;
+  --warn-line: #a47a22;
+  color-scheme: dark;
+}
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+main { max-width: 44rem; margin: 0 auto; padding: 2rem 1.1rem 3rem; }
+h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 0.75rem; font-weight: 600; letter-spacing: -0.01em; }
+h2 { font-size: 1.25rem; margin: 2.5rem 0 0.75rem; font-weight: 600; }
+h3 { font-size: 1.05rem; margin: 0 0 0.5rem; font-weight: 600; }
+p { margin: 0 0 0.85rem; }
+.lead { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.25rem; }
+ul { margin: 0 0 0.85rem; padding-left: 1.2rem; }
+li { margin-bottom: 0.35rem; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.88em; background: var(--note-bg); padding: 0.1em 0.35em; border-radius: 4px; }
+pre {
+  margin: 0.4rem 0 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+.box { background: var(--note-bg); border-left: 4px solid var(--accent); padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; margin: 0 0 1rem; }
+.box.warn { background: var(--warn-bg); border-left-color: var(--warn-line); }
+.box p:last-child, .box ul:last-child { margin-bottom: 0; }
+ol.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; }
+ol.steps > li {
+  counter-increment: step;
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem 1rem 0.5rem 3.1rem;
+  margin-bottom: 0.9rem;
+}
+ol.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0.9rem;
+  top: 1rem;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.faults { list-style: none; padding: 0; }
+.faults li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 0.7rem; }
+.faults strong { display: block; margin-bottom: 0.2rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Add HTTPS to ClipStage with Caddy</h1>
+  <p class="lead">ClipStage speaks plain HTTP. On a shared network, anyone could read logins and session cookies. Caddy is a free, open-source program that sits in front of ClipStage and encrypts the traffic with a private certificate. You don’t need to buy a domain or a certificate.</p>
+
+  <div class="box">
+    <p><strong>Before you start</strong></p>
+    <ul>
+      <li>Run every command in Terminal on the <strong>server Mac</strong>, the one that runs ClipStage.</li>
+      <li>In your router, <strong>reserve a fixed IP</strong> for that Mac. If its address changes, everyone’s link and certificate break.</li>
+      <li>Note your current values, so you can roll back:
+<pre><code>grep -E "CLIPSTAGE_BIND_HOST|CLIPSTAGE_COOKIE_SECURE" ~/Documents/ClipStage/.env</code></pre>
+      </li>
+      <li>Don’t restart the app while an index run started from the app is going.</li>
+    </ul>
+  </div>
+
+  <h2>Find your address</h2>
+  <pre><code>ipconfig getifaddr en0
+scutil --get LocalHostName</code></pre>
+  <p>The first command prints the Mac’s IP on Wi-Fi. On Ethernet, try <code>en1</code> or another interface. The second prints the Mac’s name. Its Bonjour name is that name plus <code>.local</code>.</p>
+  <ul>
+    <li><strong>IP address:</strong> simplest, and works from every computer. The examples below use <code>192.168.1.50</code>, so replace it with yours. Caddy’s internal certificates should work for an IP, but if you get a certificate error, switch to a name.</li>
+    <li><strong>Name:</strong> a router DNS name such as <code>clipstage.lan</code> is better if your router supports it. A <code>.local</code> name works from Macs but can be unreliable on Windows PCs.</li>
+  </ul>
+  <p>Whatever you choose, editors must type exactly that address in the browser.</p>
+
+  <h2>Steps</h2>
+  <ol class="steps">
+    <li>
+      <h3>Install Caddy</h3>
+<pre><code>brew install caddy</code></pre>
+    </li>
+
+    <li>
+      <h3>Create the Caddy settings file</h3>
+      <p>Change <code>192.168.1.50</code> to your address first, then paste the whole block:</p>
+<pre><code>cat &gt; /opt/homebrew/etc/Caddyfile &lt;&lt;'EOF'
+192.168.1.50 {
+    tls internal
+    encode gzip
+    reverse_proxy 127.0.0.1:8000 {
+        flush_interval -1
+    }
+}
+EOF</code></pre>
+      <p>This is the same setup as <code>Caddyfile.sample</code> in the ClipStage folder, with your address. The <code>flush_interval</code> line keeps video previews from being buffered. If port 443 can’t be used, write <code>192.168.1.50:8443</code> on the first line and browse to <code>https://192.168.1.50:8443</code>.</p>
+    </li>
+
+    <li>
+      <h3>Start Caddy</h3>
+<pre><code>brew services start caddy</code></pre>
+      <p>Caddy now starts automatically when the Mac starts, and creates its private certificate authority.</p>
+    </li>
+
+    <li>
+      <h3>Trust the certificate on the server</h3>
+<pre><code>caddy trust</code></pre>
+      <p>It asks for the Mac’s password.</p>
+    </li>
+
+    <li>
+      <h3>Trust the certificate on every editor computer</h3>
+      <p>On the server, the certificate file is here:</p>
+<pre><code>~/Library/Application Support/Caddy/pki/authorities/local/root.crt</code></pre>
+      <p>It’s a public certificate, so it’s safe to share through a folder your editors can read. Change the destination folder to one of yours:</p>
+<pre><code>cp "$HOME/Library/Application Support/Caddy/pki/authorities/local/root.crt" "/Volumes/SHARE FOLDER/ClipStage-root.crt"</code></pre>
+      <div class="box warn">
+        <ul>
+          <li>Copy only <code>root.crt</code>. Never share <code>root.key</code>, which sits in the same Caddy folder. Anyone holding it could make certificates that those computers would trust.</li>
+          <li>Make the shared folder read-only for editors in your NAS or share permissions. Otherwise someone could replace the file, and editors would install the wrong certificate.</li>
+        </ul>
+      </div>
+      <p>Each editor opens <code>ClipStage-root.crt</code> from the share and installs it once:</p>
+      <ul>
+        <li><strong>Mac:</strong> double-click the file and add it to the <strong>login</strong> keychain. The System keychain needs an administrator. In Keychain Access, find the certificate (its name starts with Caddy Local Authority), double-click it, expand Trust, and choose <strong>Always Trust</strong>. The Mac asks for the editor’s own password.</li>
+        <li><strong>Windows:</strong> double-click the file, choose Install Certificate, then <strong>Current User</strong>, and place it in <strong>Trusted Root Certification Authorities</strong>. Current User usually needs no administrator rights. Local Machine does.</li>
+        <li><strong>Firefox</strong> keeps its own list, so import the file there too, or use Chrome, Edge or Safari.</li>
+      </ul>
+      <p>If an editor’s computer doesn’t allow installing certificates, ask your IT person. They can also push the certificate to all 25 computers at once. Skipping this step gives a browser warning.</p>
+    </li>
+
+    <li>
+      <h3>Test before changing anything else</h3>
+      <p>On one editor’s computer, open <code>https://192.168.1.50</code>. ClipStage must load with no certificate warning. On the server, also check that the app itself is up:</p>
+<pre><code>curl -s http://127.0.0.1:8000/health</code></pre>
+      <p>It should print <code>{"status":"ok"}</code>.</p>
+      <div class="box warn">
+        <p>Don’t go on until the editor’s computer loads the page. If it doesn’t, use the troubleshooting list below.</p>
+      </div>
+    </li>
+
+    <li>
+      <h3>Switch ClipStage to HTTPS-only settings</h3>
+<pre><code>nano ~/Documents/ClipStage/.env</code></pre>
+      <p>Set these two lines. If a line already exists, change its value instead of adding a second one:</p>
+<pre><code>CLIPSTAGE_BIND_HOST=127.0.0.1
+CLIPSTAGE_COOKIE_SECURE=1</code></pre>
+      <p>Save with Ctrl+O, Enter, then exit with Ctrl+X. Restart the app:</p>
+<pre><code>launchctl kickstart -k gui/$(id -u)/com.clipstage.api</code></pre>
+      <p>Tell the editors to use <code>https://192.168.1.50</code> from now on. The old <code>http://192.168.1.50:8000</code> link stops working.</p>
+    </li>
+
+    <li>
+      <h3>Final checks</h3>
+      <ul>
+        <li>Log in from an editor’s computer at the HTTPS address.</li>
+        <li>Make sure the app and the search engine aren’t open to the network:
+<pre><code>lsof -nP -iTCP:8000 -sTCP:LISTEN
+lsof -nP -iTCP:8108 -sTCP:LISTEN</code></pre>
+          Both lines should show <code>127.0.0.1</code>. If one shows <code>*</code>, it is reachable from the network.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2>If something goes wrong</h2>
+  <ul class="faults">
+    <li>
+      <strong>The page won’t load or times out</strong>
+      Caddy isn’t running or the port is blocked. Run <code>brew services list | grep caddy</code>, which should say started. Run <code>lsof -nP -iTCP:443 -sTCP:LISTEN</code>. If the macOS firewall asks about Caddy, allow it. Make sure the editor’s computer is on the same network.
+    </li>
+    <li>
+      <strong>“502 Bad Gateway”</strong>
+      Caddy can’t reach the app. Run <code>curl -s http://127.0.0.1:8000/health</code> on the server. If it doesn’t print <code>{"status":"ok"}</code>, the app is down, or <code>CLIPSTAGE_BIND_HOST</code> is set to the network address only. Set it to <code>127.0.0.1</code> and restart the app.
+    </li>
+    <li>
+      <strong>Certificate warning</strong>
+      That computer doesn’t trust Caddy’s certificate yet. Open <code>ClipStage-root.crt</code> from the share, install it again, and mark it Always Trust. Also type the address exactly as it appears on the first line of the Caddy file.
+    </li>
+    <li>
+      <strong>The page loads but login fails</strong>
+      Note the exact message on screen. If it appeared right after step 7, check that <code>CLIPSTAGE_COOKIE_SECURE=1</code> is only set while people use the HTTPS address.
+    </li>
+    <li>
+      <strong>You need Caddy’s own error messages</strong>
+      Run <code>brew services stop caddy</code>, then <code>caddy run --config /opt/homebrew/etc/Caddyfile</code>. Errors print on screen. Press Ctrl+C to stop, then run <code>brew services start caddy</code> again.
+    </li>
+  </ul>
+
+  <h2>Roll back</h2>
+  <p>Put the old <code>CLIPSTAGE_BIND_HOST</code> value back in <code>.env</code> and remove the <code>CLIPSTAGE_COOKIE_SECURE=1</code> line. Restart the app with the <code>launchctl kickstart</code> command from step 7. Then stop Caddy with <code>brew services stop caddy</code>.</p>
+</main>
+</body>
+</html>
