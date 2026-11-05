@@ -188,8 +188,9 @@ body {
   line-height: 1.4;
   margin-left: auto;
   text-align: right;
-  white-space: nowrap;
+  white-space: normal;
 }
+.indexer-status .last-run { display: block; }
 .indexer-status strong { color: var(--text); }
 .indexer-status.running strong { color: var(--accent); }
 .indexer-status.failed strong { color: var(--red); }
@@ -1066,7 +1067,7 @@ kbd {
 }
 .clip-card:hover .play-btn, .list-row:hover .play-btn { opacity: 1; }
 
-@media (max-width: 1280px) {
+@media (max-width: 1440px) {
   .header {
     flex-wrap: wrap;
     gap: 8px 12px;
@@ -1087,16 +1088,6 @@ kbd {
     margin-left: 0;
     max-width: none;
     text-align: left;
-  }
-}
-
-@media (min-width: 1281px) and (max-width: 1440px) {
-  .indexer-status {
-    max-width: 230px;
-    white-space: normal;
-  }
-  .indexer-status .last-run {
-    display: block;
   }
 }
 
