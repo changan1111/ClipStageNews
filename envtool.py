@@ -80,7 +80,15 @@ def main(argv: list) -> int:
         return 0
     if cmd == "init":
         if not path.exists():
-            shutil.copyfile(HERE / ".env.sample", path)
+            sample = HERE / ".env.sample"
+            if sample.exists():
+                shutil.copyfile(sample, path)
+            else:
+                # .env.sample is a hidden file and is easily lost when a folder is copied by hand.
+                # Never fail: start from an empty .env; the installer fills in every value it needs.
+                path.write_text("# ClipStage settings (created by the installer; .env.sample was not found)\n",
+                                encoding="utf-8", newline="\n")
+                print("warning: .env.sample not found - created an empty .env", file=sys.stderr)
             if os.name != "nt":
                 os.chmod(path, 0o600)
             print("created", path)

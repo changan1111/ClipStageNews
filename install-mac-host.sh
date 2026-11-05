@@ -39,7 +39,9 @@ step() { STEP=$((STEP + 1)); printf '\n%s[%d/%d] %s%s\n' "$B$C" "$STEP" "$TOTAL"
 ok()   { printf '  %s✓%s %s\n' "$G" "$N" "$1"; }
 info() { printf '    %s\n' "$1"; }
 warn() { printf '  %s!%s %s\n' "$Y" "$N" "$1"; WARNINGS+=("$1"); }
-die()  { printf '\n%s✗ %s%s\n' "$R" "$1" "$N" >&2; exit 1; }
+die()  { printf '\n%s✗ %s%s\n' "$R" "$1" "$N" >&2
+         [ -f "${APP_DIR:-/nonexistent}/.env" ] && printf '  Your settings file: %s/.env\n' "$APP_DIR" >&2
+         exit 1; }
 WARNINGS=()
 
 TTY=/dev/tty; { : < "$TTY"; } 2>/dev/null || TTY=/dev/stdin     # no terminal (pipes, CI): read answers from stdin
@@ -159,6 +161,22 @@ fi
 cd "$APP_DIR" || die "Cannot enter $APP_DIR"
 chmod +x ./*.sh 2>/dev/null
 
+# ---------- .env is created FIRST, before anything is installed -------------------------------
+# (so it exists even if a later step - Homebrew, Typesense, pip - fails and the installer stops)
+[ -f .env ] || { cp .env.sample .env 2>/dev/null || : > .env; }
+chmod 600 .env 2>/dev/null
+[ -f .env ] || die "Could not create $APP_DIR/.env (is the folder writable?)"
+env_set_if_blank() {      # env_set_if_blank KEY VALUE -> sets it only when empty / a CHANGE_ME placeholder
+    local k="$1" v="$2" c
+    c="$(grep -s "^$k=" .env | head -1 | cut -d= -f2-)"
+    case "$c" in ""|CHANGE_ME*) ;; *) return 1 ;; esac
+    { grep -v "^$k=" .env; echo "$k=$v"; } > .env.tmp && mv .env.tmp .env && chmod 600 .env
+}
+EARLY_BE_NEW=0; EARLY_KEY_NEW=0
+env_set_if_blank SEARCH_BACKEND typesense && EARLY_BE_NEW=1
+if command -v openssl >/dev/null 2>&1; then env_set_if_blank TYPESENSE_KEY "$(openssl rand -hex 24)" && EARLY_KEY_NEW=1; fi
+ok "settings file created: $APP_DIR/.env   (hidden file: in Finder press Cmd+Shift+. to see it)"
+
 # ---------- 1. Homebrew + packages -----------------------------------------------------------
 step "Python and ffmpeg"
 export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_ENV_HINTS=1
@@ -233,6 +251,9 @@ TS_KEY="$(cur TYPESENSE_KEY)"; TS_KEY_NEW=0
 if is_placeholder "$TS_KEY"; then TS_KEY="$(openssl rand -hex 24)"; TS_KEY_NEW=1; fi
 SEARCH_BE="$(cur SEARCH_BACKEND | tr 'A-Z' 'a-z')"; SEARCH_BE_NEW=0
 case "$SEARCH_BE" in typesense|sqlite) ;; *) SEARCH_BE="typesense"; SEARCH_BE_NEW=1 ;; esac
+# values written into a brand-new .env at the start of this run still count as "new": ask about them
+[ "${EARLY_BE_NEW:-0}" -eq 1 ] && SEARCH_BE_NEW=1
+[ "${EARLY_KEY_NEW:-0}" -eq 1 ] && TS_KEY_NEW=1
 
 SB_URL="$(cur SUPABASE_URL)"; SB_KEY="$(cur SUPABASE_ANON_KEY)"
 NAS_HOST="$(cur CLIPSTAGE_NAS_HOST)"; NAS_DOMAIN="$(cur CLIPSTAGE_NAS_DOMAIN)"; NAS_USER="$(cur CLIPSTAGE_NAS_USER)"; NAS_PASS="$(cur CLIPSTAGE_NAS_PASSWORD)"
@@ -367,6 +388,17 @@ if [ "$SEARCH_BE" = "typesense" ]; then
     _k="$(cur TYPESENSE_KEY)"; if is_placeholder "$_k"; then die "TYPESENSE_KEY was not saved to $APP_DIR/.env"; fi
 fi
 ok ".env written (permissions: owner only) - SEARCH_BACKEND=$SEARCH_BE$([ "$SEARCH_BE" = typesense ] && echo ', TYPESENSE_KEY saved')"
+
+# Start Typesense NOW with the key just saved. A Typesense left running from an earlier install keeps its
+# OLD key (every request would then fail with HTTP 401), so it is restarted here with the new key.
+if [ "$SEARCH_BE" = "typesense" ]; then
+    bash -c '. ./clipstage_env.sh && start_typesense' 2>&1 | sed 's/^/  /'
+    if bash -c '. ./clipstage_env.sh && typesense_key_ok'; then
+        ok "Typesense is running and accepts the key from .env"
+    else
+        warn "Typesense did not accept the key from .env. Fix: pkill -f typesense-server ; ./clipstage.sh restart   (log: /tmp/typesense.log)"
+    fi
+fi
 ok "editors.json: $("$PY" -c "import json;print(len(json.load(open('editors.json'))['editors']))") editor name(s)"
 
 # ---------- 5. NAS + staging ------------------------------------------------------------------
@@ -419,7 +451,12 @@ for _ in $(seq 1 60); do
     sleep 1
 done
 if [ "$up" -eq 1 ]; then ok "API answers on http://127.0.0.1:8000"; else warn "The API did not answer in 60 s. Read: tail -n 40 $APP_DIR/api.log"; fi
-curl -sf -m 3 "http://localhost:8108/health" 2>/dev/null | grep -q true && ok "Typesense is running" || warn "Typesense is not answering yet (it is started by the API service)."
+if [ "$SEARCH_BE" = "typesense" ]; then
+    bash -c '. ./clipstage_env.sh && typesense_key_ok && typesense_up' 2>/dev/null && ok "Typesense is running and accepts the saved key" \
+        || warn "Typesense is not answering with the saved key (401?). Fix: pkill -f typesense-server ; ./clipstage.sh restart"
+else
+    ok "Search engine: SQLite (no server needed)"
+fi
 if [ "$up" -eq 1 ] && [ -n "$SMB_HOST" ]; then
     curl -sf -m 3 "http://$SMB_HOST:8000/health" >/dev/null 2>&1 && ok "reachable on the network at http://$SMB_HOST:8000" \
         || warn "http://$SMB_HOST:8000 is not reachable from this Mac itself - check CLIPSTAGE_SMB_HOST / firewall."
@@ -450,6 +487,7 @@ info "  3. Give each user a role + expiry: see the examples at the bottom of sup
 step "Done"
 printf '\n%s  ClipStage is installed.%s\n\n' "$B$G" "$N"
 printf '  Open it:            http://%s:8000   (from any computer on the network)\n' "${SMB_HOST:-127.0.0.1}"
+printf '  Settings file:      %s/.env   (hidden in Finder: Cmd+Shift+. ; or run: open -R "%s/.env")\n' "$APP_DIR" "$APP_DIR"
 printf '  Day-to-day:         cd %s && ./clipstage.sh status      (also: restart, logs, index, backup)\n' "$APP_DIR"
 printf '  Editors'"'"' Macs:     copy this folder to each editor Mac and run:  bash install-mac-editor.sh --host %s\n' "${SMB_HOST:-<this-mac-ip>}"
 printf '  Editors'"'"' Windows PCs: see INSTALL-QUICKSTART.md (install-win-editor.ps1)\n'

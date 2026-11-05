@@ -102,8 +102,34 @@ typesense_up() {
     curl -sf "http://$TS_HOST:$TS_PORT/health" | grep -q true
 }
 
+# 0 = the running Typesense accepts $TYPESENSE_KEY (health needs no key, so it cannot tell us this)
+typesense_key_ok() {
+    local c
+    c="$(curl -s -m 5 -o /dev/null -w '%{http_code}' -H "X-TYPESENSE-API-KEY: $TYPESENSE_KEY" \
+         "http://$TS_HOST:$TS_PORT/collections" 2>/dev/null)"
+    [ "$c" != "401" ] && [ "$c" != "403" ]
+}
+
 start_typesense() {
-    typesense_up && return 0
+    if typesense_up; then
+        typesense_key_ok && return 0
+        # A Typesense started earlier (older install / other key) is still running: it keeps ITS key
+        # until restarted, so every request with the key from .env gets HTTP 401.
+        case "$TS_HOST" in
+            localhost|127.0.0.1) ;;
+            *) echo "ERROR: Typesense at $TS_HOST:$TS_PORT rejects TYPESENSE_KEY (HTTP 401). Use that server's key." >&2; return 1 ;;
+        esac
+        echo "Typesense is running with a different API key - restarting it with the key from .env..."
+        command -v brew >/dev/null 2>&1 && brew services list 2>/dev/null | grep -q '^typesense' && \
+            brew services stop "$(brew services list | awk '/^typesense/{print $1; exit}')" >/dev/null 2>&1
+        pkill -f typesense-server 2>/dev/null
+        local w
+        for w in $(seq 1 15); do typesense_up || break; sleep 1; done
+        if typesense_up; then
+            echo "ERROR: could not stop the running Typesense. Stop it by hand (pkill -f typesense-server) and try again." >&2
+            return 1
+        fi
+    fi
     if [ -z "$TS_BIN" ] || [ ! -x "$TS_BIN" ]; then
         echo "ERROR: Typesense is not running and typesense-server was not found." >&2
         echo "       Set TYPESENSE_BIN in .env (e.g. /opt/homebrew/bin/typesense-server)." >&2
