@@ -161,7 +161,38 @@ function Show-Fatal($err) {
 # =======================================================================================================
 # SQLite search is the default on Windows (nothing to install). Typesense inside WSL2 is only used when
 # SEARCH_BACKEND=typesense is set (environment variable or C:\ClipStage\.env).
+$script:SearchChoice = ''          # 'sqlite' or 'typesense' once chosen (question below, env var, or saved .env)
+function Get-SavedSearchBackend {
+    $f = Join-Path $Dest '.env'
+    if (Test-Path -LiteralPath $f) {
+        $m = Select-String -LiteralPath $f -Pattern '^SEARCH_BACKEND=\s*(sqlite|typesense)\s*$' | Select-Object -First 1
+        if ($m) { return $m.Matches[0].Groups[1].Value.ToLower() }
+    }
+    return ''
+}
+# Asked once at the start (before the plan is shown, because Typesense needs WSL2 and SQLite needs nothing).
+# Not asked when SEARCH_BACKEND is already set in the environment or saved in C:\ClipStage\.env,
+# unless -Reconfigure is used. -Yes takes the default: sqlite.
+function Step-ChooseSearch {
+    $envVal = "$env:SEARCH_BACKEND".Trim().ToLower()
+    $saved = Get-SavedSearchBackend
+    $cur = $saved; if (-not $cur) { $cur = $envVal }
+    if (($cur -eq 'sqlite' -or $cur -eq 'typesense') -and -not $Reconfigure) { $script:SearchChoice = $cur; return }
+    if (-not $cur) { $cur = 'sqlite' }
+    Write-Host ''
+    Write-Host '  Search engine: sqlite is the default on Windows (built into Python, nothing to install).'
+    Write-Host '  typesense needs WSL2 (a small Linux inside Windows) and a Typesense API key.'
+    $tries = 0
+    while ($true) {
+        $a = (Ask 'Search engine (sqlite or typesense)' $cur).ToLower()
+        if ($a -eq 'sqlite' -or $a -eq 'typesense') { $script:SearchChoice = $a; return }
+        if ($Yes) { Die 'SEARCH_BACKEND must be sqlite or typesense.' }
+        if (++$tries -gt 15) { Die 'Too many invalid entries - is a terminal attached?' }
+        Write-Host '  Type sqlite or typesense.'
+    }
+}
 function Want-Typesense {
+    if ($script:SearchChoice) { return ($script:SearchChoice -eq 'typesense') }
     if ("$env:SEARCH_BACKEND".Trim().ToLower() -eq 'typesense') { return $true }
     $f = Join-Path $Dest '.env'
     if (Test-Path -LiteralPath $f) { return [bool](Select-String -LiteralPath $f -Pattern '^SEARCH_BACKEND=typesense\s*$' -Quiet) }
@@ -259,6 +290,18 @@ function Get-LanIp {
 }
 function Read-Answers([hashtable]$S, [bool]$All) {
     $tries = 0
+    if ($S.Engine -eq 'typesense' -and ($All -or $S.TsNew)) {
+        Write-Host '  Typesense API key: a random one was generated for you. Press Enter to use it, or paste your own.'
+        while ($true) {
+            $p = AskSecret 'Typesense API key (hidden; Enter = use the generated key)'
+            if ($p) { $S.TsKey = $p }
+            if ($S.TsKey.Length -ge 16) { break }
+            if (++$tries -gt 15) { Die 'Too many invalid entries - is a terminal attached?' }
+            Write-Host '  The key must be at least 16 characters.'
+        }
+        $S.TsNew = $false
+        $tries = 0
+    }
     if ($All -or (Test-Placeholder $S.SbUrl) -or (Test-Placeholder $S.SbKey)) {
         Write-Host '  Supabase holds the logins. Project Settings -> API in the Supabase dashboard has both values.'
         while ($true) {
@@ -323,6 +366,8 @@ function Show-Summary([hashtable]$S) {
     Write-Host ''
     Write-Host '  Please check your entries' -ForegroundColor White
     Write-Host ''
+    Write-Host ("    Search engine      {0}" -f $S.Engine)
+    if ($S.Engine -eq 'typesense') { Write-Host ("    Typesense key      {0}... ({1} characters)" -f $S.TsKey.Substring(0, [Math]::Min(4, $S.TsKey.Length)), $S.TsKey.Length) }
     Write-Host ("    Supabase URL       {0}   [{1}]" -f $S.SbUrl, $sb)
     Write-Host ("    Supabase key       {0}... ({1} characters)" -f $S.SbKey.Substring(0, [Math]::Min(6, $S.SbKey.Length)), $S.SbKey.Length)
     if ($S.NasHost) {
@@ -348,8 +393,9 @@ function Step-Settings {
     Import-ClipEnv
     $cur = { param($k) Get-ClipEnvFromFile $k $envFile }
 
-    $tsKey = & $cur 'TYPESENSE_KEY'
-    if ((Want-Typesense) -and (Test-Placeholder $tsKey)) { $tsKey = New-HexKey 24; Ok 'generated a new random Typesense key' }
+    $useTs = [bool](Want-Typesense)
+    $tsKey = & $cur 'TYPESENSE_KEY'; $tsNew = $false
+    if ($useTs -and (Test-Placeholder $tsKey)) { $tsKey = New-HexKey 24; $tsNew = $true }
     $editorPass = & $cur 'CLIPSTAGE_EDITOR_SHARE_PASSWORD'
     if (Test-Placeholder $editorPass) { $editorPass = New-StrongPassword 20 }
 
@@ -358,6 +404,7 @@ function Step-Settings {
         NasHost = (& $cur 'CLIPSTAGE_NAS_HOST'); NasDomain = (& $cur 'CLIPSTAGE_NAS_DOMAIN')
         NasUser = (& $cur 'CLIPSTAGE_NAS_USER'); NasPass = (& $cur 'CLIPSTAGE_NAS_PASSWORD')
         Vols = (& $cur 'CLIPSTAGE_SCAN_VOLUMES'); Ip = (& $cur 'CLIPSTAGE_SMB_HOST')
+        Engine = $(if ($useTs) { 'typesense' } else { 'sqlite' }); TsKey = $tsKey; TsNew = $tsNew
     }
     Read-Answers $S ([bool]$Reconfigure)
     while ($true) {
@@ -367,8 +414,8 @@ function Step-Settings {
         if ($a.ToUpper().StartsWith('E')) { Read-Answers $S $true } else { break }
     }
 
-    if (Want-Typesense) {
-        Set-ClipEnv @{ SEARCH_BACKEND = 'typesense'; TYPESENSE_KEY = $tsKey; TYPESENSE_HOST = 'localhost'; TYPESENSE_PORT = '8108' }
+    if ($S.Engine -eq 'typesense') {
+        Set-ClipEnv @{ SEARCH_BACKEND = 'typesense'; TYPESENSE_KEY = $S.TsKey; TYPESENSE_HOST = 'localhost'; TYPESENSE_PORT = '8108' }
     } else {
         Set-ClipEnv @{ SEARCH_BACKEND = 'sqlite' }
         Ok 'search engine: SQLite (built into Python)'
@@ -383,7 +430,11 @@ function Step-Settings {
         CLIPSTAGE_NAS_USER = $S.NasUser; CLIPSTAGE_NAS_PASSWORD = $S.NasPass
         CLIPSTAGE_EDITOR_SHARE_USER = $EditorUser; CLIPSTAGE_EDITOR_SHARE_PASSWORD = $editorPass
     }
-    Ok '.env written'
+    # Read back what was just written - never continue with a missing backend / key.
+    $be = (& $cur 'SEARCH_BACKEND').Trim().ToLower()
+    if ($be -notin @('sqlite', 'typesense')) { Die 'SEARCH_BACKEND was not saved to .env' }
+    if ($be -eq 'typesense' -and (Test-Placeholder (& $cur 'TYPESENSE_KEY'))) { Die 'TYPESENSE_KEY was not saved to .env' }
+    Ok ".env written - SEARCH_BACKEND=$be"
     $edCount = 0
     try { $edCount = @((Get-Content -LiteralPath (Join-Path $Dest 'editors.json') -Raw | ConvertFrom-Json).editors).Count } catch { }
     Ok "editors.json: $edCount editor name(s)"
@@ -846,6 +897,7 @@ try {
         return
     }
 
+    if (-not $Resume) { Step-ChooseSearch }
     $build = [Environment]::OSVersion.Version.Build
     if ((Want-Typesense) -and $build -lt 19041) { Die "Windows 10 version 2004 (build 19041) or newer is required for WSL2 (this is build $build)." }
     if (-not [Environment]::Is64BitOperatingSystem) { Die 'A 64-bit Windows is required.' }
