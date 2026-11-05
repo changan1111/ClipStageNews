@@ -70,7 +70,17 @@ clipstage_alert() {
 }
 
 clipstage_require_key() {
-    if [ -z "${TYPESENSE_KEY:-}" ]; then
+    case "${TYPESENSE_KEY:-}" in ""|CHANGE_ME*)
+        # Self-heal: generate a key once and save it (together with SEARCH_BACKEND) in .env.
+        # Only safe while Typesense is not running (it takes the key at start-up).
+        if ! typesense_up && command -v openssl >/dev/null 2>&1 && [ -f "$CLIPSTAGE_DIR/envtool.py" ]; then
+            TYPESENSE_KEY="$(openssl rand -hex 24)"
+            "${CLIPSTAGE_PYTHON:-python3}" "$CLIPSTAGE_DIR/envtool.py" set SEARCH_BACKEND typesense TYPESENSE_KEY "$TYPESENSE_KEY" \
+                && export TYPESENSE_KEY SEARCH_BACKEND=typesense \
+                && echo "Generated a new TYPESENSE_KEY and saved it in $CLIPSTAGE_DIR/.env"
+        fi ;;
+    esac
+    if [ -z "${TYPESENSE_KEY:-}" ] || [ "${TYPESENSE_KEY#CHANGE_ME}" != "$TYPESENSE_KEY" ]; then
         clipstage_alert "TYPESENSE_KEY is not set - put it in $CLIPSTAGE_DIR/.env"
         exit 1
     fi

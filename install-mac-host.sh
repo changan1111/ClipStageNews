@@ -229,8 +229,10 @@ cur() { "${ENVT[@]}" get "$1"; }
 is_placeholder() { case "$1" in ""|CHANGE_ME*|*your-project*|your-supabase*|10.1.10.XXX|"<"*) return 0 ;; *) return 1 ;; esac; }
 
 # Typesense key: generate once, keep afterwards
-TS_KEY="$(cur TYPESENSE_KEY)"
-if is_placeholder "$TS_KEY"; then TS_KEY="$(openssl rand -hex 24)"; ok "generated a new random Typesense key"; fi
+TS_KEY="$(cur TYPESENSE_KEY)"; TS_KEY_NEW=0
+if is_placeholder "$TS_KEY"; then TS_KEY="$(openssl rand -hex 24)"; TS_KEY_NEW=1; fi
+SEARCH_BE="$(cur SEARCH_BACKEND | tr 'A-Z' 'a-z')"; SEARCH_BE_NEW=0
+case "$SEARCH_BE" in typesense|sqlite) ;; *) SEARCH_BE="typesense"; SEARCH_BE_NEW=1 ;; esac
 
 SB_URL="$(cur SUPABASE_URL)"; SB_KEY="$(cur SUPABASE_ANON_KEY)"
 NAS_HOST="$(cur CLIPSTAGE_NAS_HOST)"; NAS_DOMAIN="$(cur CLIPSTAGE_NAS_DOMAIN)"; NAS_USER="$(cur CLIPSTAGE_NAS_USER)"; NAS_PASS="$(cur CLIPSTAGE_NAS_PASSWORD)"
@@ -244,6 +246,22 @@ detect_ip() {
 
 collect_answers() {
     local d mounted now
+    if [ "$ASK_ALL" -eq 1 ] || [ "$SEARCH_BE_NEW" -eq 1 ] || [ "$TS_KEY_NEW" -eq 1 ]; then
+        echo "  Search engine: typesense is the default on a Mac (installed by this script). sqlite needs no server."
+        while true; do
+            ask "Search engine (typesense or sqlite)" "$SEARCH_BE"; SEARCH_BE="$(echo "$REPLY_VAL" | tr 'A-Z' 'a-z')"
+            case "$SEARCH_BE" in typesense|sqlite) break ;; *) [ "$ASSUME_YES" -eq 1 ] && die "SEARCH_BACKEND must be typesense or sqlite."; echo "  Type typesense or sqlite." ;; esac
+        done
+        if [ "$SEARCH_BE" = "typesense" ]; then
+            echo "  Typesense API key: a random one was generated for you. Press Enter to use it, or paste your own."
+            ask_secret "Typesense API key (hidden; Enter = use the generated key)"
+            if [ -n "$REPLY_VAL" ]; then TS_KEY="$REPLY_VAL"; fi
+            while [ ${#TS_KEY} -lt 16 ]; do
+                echo "  The key must be at least 16 characters."
+                ask_secret "Typesense API key (hidden)"; [ -n "$REPLY_VAL" ] && TS_KEY="$REPLY_VAL"
+            done
+        fi
+    fi
     if [ "$ASK_ALL" -eq 1 ] || is_placeholder "$SB_URL" || is_placeholder "$SB_KEY"; then
         echo "  Supabase holds the logins. Project Settings -> API in the Supabase dashboard has both values."
         while true; do
@@ -310,6 +328,8 @@ show_summary() {
     fi
     ed="$("$PY" -c "import json;print(', '.join(json.load(open('editors.json'))['editors']))" 2>/dev/null || true)"
     printf '\n%s  Please check your entries%s\n\n' "$B" "$N"
+    printf '    Search engine      %s\n' "$SEARCH_BE"
+    [ "$SEARCH_BE" = "typesense" ] && printf '    Typesense key      %s... (%s characters)\n' "${TS_KEY:0:4}" "${#TS_KEY}"
     printf '    Supabase URL       %s   [%s]\n' "$SB_URL" "$sb_state"
     printf '    Supabase key       %s... (%s characters)\n' "${SB_KEY:0:6}" "${#SB_KEY}"
     if [ -n "$NAS_HOST" ]; then
@@ -334,12 +354,19 @@ while true; do
     esac
 done
 
-"${ENVT[@]}" set TYPESENSE_KEY "$TS_KEY" TYPESENSE_BIN "$TYPESENSE_BIN" SUPABASE_URL "$SB_URL" SUPABASE_ANON_KEY "$SB_KEY" \
+# Search engine on Mac = Typesense. Written explicitly (not left blank) together with host/port/key.
+"${ENVT[@]}" set SEARCH_BACKEND "$SEARCH_BE" TYPESENSE_HOST localhost TYPESENSE_PORT 8108 \
+    TYPESENSE_KEY "$TS_KEY" TYPESENSE_BIN "$TYPESENSE_BIN" SUPABASE_URL "$SB_URL" SUPABASE_ANON_KEY "$SB_KEY" \
     CLIPSTAGE_SCAN_VOLUMES "$VOLS" CLIPSTAGE_SMB_HOST "$SMB_HOST" CLIPSTAGE_BIND_HOST 0.0.0.0 \
     CLIPSTAGE_COLLECTION clips_v2 CLIPSTAGE_VOLUMES_ROOT /Volumes CLIPSTAGE_STAGING_PATH "$STAGING_DIR" \
     CLIPSTAGE_NAS_HOST "$NAS_HOST" CLIPSTAGE_NAS_DOMAIN "$NAS_DOMAIN" CLIPSTAGE_NAS_USER "$NAS_USER" CLIPSTAGE_NAS_PASSWORD "$NAS_PASS"
 chmod 600 .env
-ok ".env written (permissions: owner only)"
+# Read back what was just written - never continue with a missing backend / key.
+[ "$(cur SEARCH_BACKEND)" = "$SEARCH_BE" ] || die "SEARCH_BACKEND was not saved to $APP_DIR/.env"
+if [ "$SEARCH_BE" = "typesense" ]; then
+    _k="$(cur TYPESENSE_KEY)"; if is_placeholder "$_k"; then die "TYPESENSE_KEY was not saved to $APP_DIR/.env"; fi
+fi
+ok ".env written (permissions: owner only) - SEARCH_BACKEND=$SEARCH_BE$([ "$SEARCH_BE" = typesense ] && echo ', TYPESENSE_KEY saved')"
 ok "editors.json: $("$PY" -c "import json;print(len(json.load(open('editors.json'))['editors']))") editor name(s)"
 
 # ---------- 5. NAS + staging ------------------------------------------------------------------
