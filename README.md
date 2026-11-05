@@ -1,4 +1,4 @@
-# News Room Clip Archive - ClipStage v5.1
+# ClipStage
 
 ClipStage is a self-hosted browser application for finding video footage across newsroom NAS
 volumes. Editors search the indexed archive, preview clips, add notes and details, and stage the
@@ -9,12 +9,61 @@ symlinks.
 > **Fastest way to install (macOS or Windows): [`INSTALL-QUICKSTART.md`](INSTALL-QUICKSTART.md)** - one
 > command per machine (`install-mac-host.sh`, `install-win-host.ps1`, and the matching editor installers).
 >
-> **This file describes the tool.** The two guides below are the manual, step-by-step versions (Mac):
+> **This file describes the tool and day-to-day operations.** For step-by-step installation:
 >
 > | You have... | Read |
 > | --- | --- |
-> | A Mac that already runs ClipStage (v3.2, S11 or S12) | [`README-RUNNING-MACHINE.md`](README-RUNNING-MACHINE.md) - upgrade, operate, back up, roll back |
-> | A new Mac with nothing installed | [`README-FRESH-INSTALL.md`](README-FRESH-INSTALL.md) - step-by-step first installation |
+> | An existing Mac installation | [`README-RUNNING-MACHINE.md`](README-RUNNING-MACHINE.md) - operate, back up, and troubleshoot |
+> | A new Mac installation | [`README-FRESH-INSTALL.md`](README-FRESH-INSTALL.md) - step-by-step setup |
+> | A Windows host needing HTTPS or scheduled-task help | See [Windows HTTPS and scheduled tasks](#windows-https-and-scheduled-tasks) below |
+
+## Install and sign in
+
+The **host** runs the API, search index and scheduled indexing. Each **editor computer** opens the
+web app and stages clips. Run the matching installer from the ClipStage project folder:
+
+| Machine | macOS | Windows |
+| --- | --- | --- |
+| Host | `bash install-mac-host.sh` | `powershell -ExecutionPolicy Bypass -File .\install-win-host.ps1` |
+| Editor | `bash install-mac-editor.sh --host <host-ip>` | Run the one-line command printed by the Windows host installer |
+
+After host setup, add user accounts in Supabase, run `supabase_profiles_setup.sql` in the Supabase
+SQL editor, and assign each user a role and expiry date. The host installer copies the SQL and
+opens the editor to help with this step. Then open `http://<host-ip>:8000` and sign in.
+
+The default search engine is Typesense on macOS and SQLite FTS5 on Windows. Windows SQLite needs
+no WSL or separate search service. Keep the host and editor computers on the same platform; mixed
+Mac/Windows setups are not supported by the installers.
+
+## Day-to-day command reference
+
+Run commands from the ClipStage project folder. On Windows, the installer normally places it at
+`C:\ClipStage`; on macOS, it is normally `~/Documents/ClipStage`.
+
+| Task | macOS | Windows PowerShell |
+| --- | --- | --- |
+| Check services | `./clipstage.sh status` | `.\clipstage.ps1 status` |
+| Start / stop API | `./clipstage.sh start` / `stop` | `.\clipstage.ps1 start` / `stop` |
+| Stop all services | — | `.\clipstage.ps1 stop-all` |
+| Restart | `./clipstage.sh restart` | `.\clipstage.ps1 restart` |
+| Follow index / API logs | `./clipstage.sh logs` / `logs api` | `.\clipstage.ps1 logs` / `logs api` |
+| Follow Typesense log | — | `.\clipstage.ps1 logs typesense` |
+| Index all volumes | `./clipstage.sh index` | `.\clipstage.ps1 index` |
+| Index selected volumes | `./clipstage.sh index PLAYOUT EDIT2` | `.\clipstage.ps1 index PLAYOUT EDIT2` |
+| Stop an active index safely | `./clipstage.sh stop-index` | `.\clipstage.ps1 stop-index` |
+| Generate thumbnails | `./clipstage.sh thumbs 5000` | `.\clipstage.ps1 thumbs 5000` |
+| Back up the database | `./clipstage.sh backup` | `.\clipstage.ps1 backup` |
+| Open the app | `./clipstage.sh open` | `.\clipstage.ps1 open` |
+| Rebuild the Windows editor kit | — | `.\clipstage.ps1 editor-kit` |
+
+The host installer registers background jobs. On Windows these are Task Scheduler tasks; see the
+Windows section below. The nightly job indexes, generates thumbnails and backs up `clipstage.db`.
+
+On Windows, try commands without an execution-policy bypass first. If PowerShell says scripts are
+disabled, either run a command as
+`powershell -ExecutionPolicy Bypass -File .\clipstage.ps1 status`, or allow locally created scripts
+for your user with `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. The scheduled ClipStage
+tasks already set their own execution policy.
 
 ## Features
 
@@ -47,13 +96,13 @@ flowchart TB
         UI["index.html + indexer_status.js<br/>search · preview · notes · stage"]
     end
 
-    subgraph HOST["ClipStage host - macOS"]
+    subgraph HOST["ClipStage host - macOS or Windows"]
         PROXY["HTTPS reverse proxy (Caddy)<br/>optional but recommended"]
         API["api.py - FastAPI, one worker<br/>login cache · roles · CSRF · rate limit<br/>stream cap · result cap · audit"]
         DB[("clipstage.db - SQLite<br/>notes · details · use counts<br/>hidden flag · locks · audit<br/>SOURCE OF TRUTH for user data")]
         STAGE[("Staging folders<br/>/Users/Shared/staging/EDITOR<br/>symlinks only")]
         LOCAL[("Runtime files<br/>index_status.json · backups/<br/>static/thumbs/ · indexer.log")]
-        SCHED["launchd 17:00<br/>nightly_index.sh"]
+        SCHED["Platform scheduler<br/>nightly index, thumbnails, backup"]
         IDX["indexer.py<br/>scan · ffprobe · prune guard<br/>backup before --force · --restore"]
         THUMBS["generate_thumbs.py<br/>atomic writes · retry window"]
         CFG["clipstage_config.py + .env<br/>one source of truth"]
@@ -114,7 +163,7 @@ The same diagram is in `architecture.mermaid`.
 | `clipstage_config.py` | Shared configuration |
 | `store.py` | SQLite store for user data |
 | `index.html`, `indexer_status.js` | Browser UI (served from `static/` **or** next to `api.py`, whichever is newer) |
-| `migrate_to_v2.py` | One-time migration from the old `clips` collection (installs older than v3 only) |
+| `migrate_to_v2.py` | One-time migration from an older Typesense collection |
 | `editors.json` | Editor names for the staging dropdown (create from `editors.sample.json`) |
 | `clipstage_env.sh` | Shared shell setup: safe `.env` loader, Python/Typesense discovery, alerts |
 | `clipstage_run.sh` | Runs any Python tool with `.env` loaded: `./clipstage_run.sh indexer.py --dry` |
@@ -215,6 +264,129 @@ Clips are staged as absolute-path symlinks under `<staging path>/<EDITOR>/`. Edi
 folder through the configured SMB share (the Finder action uses `CLIPSTAGE_SMB_HOST`). Symlinks only
 work if the SMB server exposes them and the editor's Mac has the NAS volumes mounted under the same
 names - **verify this once on a real editor machine.**
+
+## Windows HTTPS and scheduled tasks
+
+The Windows installer configures the ClipStage API and its scheduled jobs, but does not install or
+configure Caddy. HTTPS is recommended when editors access the host over a network. The steps below
+use an administrator PowerShell window on the Windows host. Replace `192.168.1.50` with the host's
+actual IP address; a local DNS name can be used instead.
+
+### Configure Caddy as an HTTPS reverse proxy
+
+1. Install Caddy with `winget install CaddyServer.Caddy`. Open a new PowerShell window and check
+   the installation with `caddy version`.
+2. Save the following as `C:\ClipStage\Caddyfile` (the file has no extension):
+
+   ```caddy
+   192.168.1.50 {
+       tls internal
+       encode gzip
+       reverse_proxy 127.0.0.1:8000 {
+           flush_interval -1
+       }
+   }
+   ```
+
+   `flush_interval -1` avoids buffering video previews. If port 443 is unavailable, use
+   `192.168.1.50:8443` as the site address and use that port in the remaining steps.
+3. Trust Caddy's local certificate authority and allow the HTTPS port through the Windows
+   firewall:
+
+   ```powershell
+   caddy trust
+   New-NetFirewallRule -DisplayName "Caddy HTTPS" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow -Profile Private,Domain
+   ```
+
+   For port 8443, change `-LocalPort 443` to `-LocalPort 8443`.
+4. Start Caddy for a test with `caddy run --config C:\ClipStage\Caddyfile`. From an editor
+   computer, visit `https://192.168.1.50`. For a private/internal certificate to be trusted without
+   browser warnings, install the host's
+   `C:\Users\<user>\AppData\Roaming\Caddy\pki\authorities\local\root.crt` certificate on each
+   editor computer. On Windows, install it for the current user under **Trusted Root Certification
+   Authorities**. On macOS, add it to the login keychain and set it to **Always Trust**. Firefox
+   may need the certificate imported separately.
+5. Confirm the API responds on the host before switching to HTTPS-only access:
+
+   ```powershell
+   curl.exe -s http://127.0.0.1:8000/health
+   ```
+
+   The response should be `{"status":"ok"}`. Then edit `C:\ClipStage\.env` (change existing
+   entries rather than adding duplicates) and set:
+
+   ```dotenv
+   CLIPSTAGE_BIND_HOST=127.0.0.1
+   CLIPSTAGE_COOKIE_SECURE=1
+   ```
+
+   Restart the API with `Stop-ScheduledTask -TaskName 'ClipStage-API'` followed by
+   `Start-ScheduledTask -TaskName 'ClipStage-API'`. Editors should use the HTTPS address; direct
+   access to `http://<host>:8000` will no longer work from other computers.
+6. To start Caddy automatically when the installing user signs in, register a scheduled task from
+   administrator PowerShell:
+
+   ```powershell
+   $a = New-ScheduledTaskAction -Execute (Get-Command caddy).Source -Argument 'run --config C:\ClipStage\Caddyfile' -WorkingDirectory 'C:\ClipStage'
+   $t = New-ScheduledTaskTrigger -AtLogOn
+   $s = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1)
+   Register-ScheduledTask -TaskName 'ClipStage-Caddy' -Action $a -Trigger $t -Settings $s -RunLevel Highest -Force
+   ```
+
+### Check Windows background tasks
+
+The Windows installer registers these tasks:
+
+| Task | Purpose |
+| --- | --- |
+| `ClipStage-API` | Starts the API at sign-in and retries if it stops |
+| `ClipStage-Nightly` | Runs indexing, thumbnails and database backup daily |
+| `ClipStage-MountWatch` | Checks NAS mounts every five minutes; only created when `CLIPSTAGE_NAS_HOST` is set |
+| `ClipStage-Typesense` | Starts Typesense only when that search engine is selected |
+| `ClipStage-Caddy` | Optional task created by the HTTPS instructions above |
+
+There is no separate Windows indexer task; `ClipStage-Nightly` runs the indexer. Check task state
+and the nightly task's last and next run with:
+
+```powershell
+Get-ScheduledTask -TaskName 'ClipStage-*' | Select-Object TaskName, State
+Get-ScheduledTaskInfo -TaskName 'ClipStage-Nightly' | Select-Object LastRunTime, LastTaskResult, NextRunTime
+Get-ScheduledTaskInfo -TaskName 'ClipStage-MountWatch' | Select-Object LastRunTime, LastTaskResult, NextRunTime
+```
+
+`Ready` or `Running` is normal; `Disabled` means the task will not run. A `LastTaskResult` of `0`
+means success; `267011` means the task has not run yet. Start the nightly job manually to test it:
+
+```powershell
+Start-ScheduledTask -TaskName 'ClipStage-Nightly'
+```
+
+You can also inspect tasks in Task Scheduler (`taskschd.msc`). Logs are in `C:\ClipStage`, including
+`api.log` and `indexer.log`. The installer's tasks run while the installing user is signed in; after
+a reboot, sign in for the tasks to start. If a ClipStage task is missing, re-run
+`install-win-host.ps1`; the installer safely registers the tasks again.
+
+## Additional maintenance commands
+
+Run these from the project folder when needed:
+
+```sh
+./clipstage_run.sh snapshot_index.py
+./clipstage_run.sh indexer.py --restore backups/clips_<timestamp>.jsonl
+./clipstage_run.sh indexer.py --reprobe
+./clipstage_run.sh indexer.py --prune
+./clipstage_run.sh generate_thumbs.py --limit 5000
+./clipstage_run.sh generate_thumbs.py --retry-failed
+./clipstage_run.sh backup_db.py
+python envtool.py get KEY
+python envtool.py set KEY VALUE
+```
+
+The `clipstage_run.sh` examples are for macOS/Linux. On Windows, use the matching
+`.\clipstage.ps1` commands in the table above. For a preview-only uninstall, use
+`bash uninstall_clipstage.sh --dry-run` on macOS or
+`powershell -ExecutionPolicy Bypass -File .\uninstall_clipstage.ps1 -DryRun` on Windows. Remove
+ClipStage only after reviewing the uninstaller's actions.
 
 ## Configuration
 
@@ -329,53 +501,5 @@ real browser. See the "Verify" section of either install guide for the one-time 
   worker (the launch script does).
 - The UI builds pages from template strings; output is escaped, but a component rewrite would be
   safer long-term.
-- macOS only: staging and the Finder action use macOS paths and commands.
-
-## What is new in v5.0
-
-v5.0 is v4.0 with the fixes and UI work found while commissioning a real install. It does **not**
-change the search schema or `clipstage.db`, so you can move between v4.0 and v5.0 on the same data.
-
-- **Log out and who-is-signed-in in the header.** Your email, role badge and a **Log out** button are
-  always visible. Log out ends the session on the server, revokes it at Supabase, clears the browser's
-  saved session and reloads to the sign-in screen. The old "Log in" link is gone.
-- **Sync Index follows your role.** The page asks the server who you are (`GET /auth/me`), so an admin
-  always sees the volume picker and **Sync Index**; editors never do.
-- **Volume picker now works.** Volumes ticked in the picker are sent with Sync Index
-  (`/admin/run-indexer?volume=EDIT2,PLAYOUT`). In v4.0 the button ignored the ticks and always ran a full index.
-- **Newest UI file wins.** `api.py` serves the newer of `static/indexer_status.js` and the one next to
-  it, so an old copy in `static/` can no longer hide an update.
-- **`supabase_profiles_setup.sql` drops every old policy** on `clipstage_profiles` (fixes the login
-  503 caused by a recursive policy, whatever the policy was called).
-- **`clipstage_run.sh`**: run any Python tool with `.env` loaded (`./clipstage_run.sh indexer.py --dry`).
-- **Troubleshooting rewritten** from real cases: login 503s, search 503s, `clips` vs `clips_v2`,
-  empty editor dropdown, missing Sync Index, `.env` not loaded. See `README-RUNNING-MACHINE.md`, section 6.
-
-## What is new in v4.0
-
-v4.0 is v3.2 (Typesense search, SQLite user data, security hardening) with the operational work
-from S12 ported in, plus fixes found while comparing the two.
-
-**Ported from S12**
-- Shared `clipstage_config.py`; the API no longer imports the indexer.
-- Prune guard (per volume, `CLIPSTAGE_PRUNE_MAX_PERCENT`), snapshot before `--force`, `--restore`,
-  and `last_warning` shown in the UI.
-- Thumbnail generator: reads the index, atomic writes, `.fail` markers with a retry window,
-  fallback for very short clips, `--limit`, `--retry-failed`; the nightly job runs it.
-- Safe `.env` loader, failure alerts (macOS notification and optional webhook), `.env` hygiene.
-- UI served from `static/` or next to `api.py`, whichever is newer; empty thumbnails treated as
-  missing.
-- UI fixes: bulk notes and hide send clip IDs, remaining HTML-escaping gaps closed, staging and
-  details-save errors are reported instead of ignored.
-- Browser smoke test and a much larger automated suite.
-
-**Fixed (present in v3.2)**
-- *Bulk notes and hide sent file paths where the API expects clip IDs*, so both failed.
-- *The volume picker next to Sync was ignored* - choosing one volume still ran every volume.
-- *`.env.sample` listed a real-looking Typesense key.* It now ships a placeholder.
-- *`source .env` broke on `SHARE FOLDER`* (the space) and executed whatever followed.
-
-**Deliberately not ported from S12** - v3.2 already does it better: search through Typesense
-(not an in-memory copy), SQLite for user data (not fields inside the index), the CSRF header,
-login rate-limit, security headers, soft delete, and editor binding through the Supabase profile.
-S12's token-protected `/admin/refresh-cache` is not needed because v3 has no in-memory cache.
+- Staging and opening the shared staging folder depend on the host operating system and its
+  configured file-sharing setup. Follow the matching host and editor installation instructions.
