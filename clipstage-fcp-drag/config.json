@@ -1,5 +1,5 @@
 {
   "serverUrl": "http://MIDDLE-MACHINE-IP:8000",
-  "stagingMount": "",
+  "stagingMount": "/Volumes/Staging",
   "shareName": "staging"
 }
