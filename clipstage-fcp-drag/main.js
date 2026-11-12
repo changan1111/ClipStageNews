@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, nativeImage, shell, dialog } = require('ele
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { adapter, parseHostPath, detect } = require('./pathmap');
 
 const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
 const IS_WIN = process.platform === 'win32';
@@ -58,14 +59,61 @@ function fail(msg) {
 }
 
 // ---- real NAS paths + LOCAL STAGING FOLDER (Mac) ---------------------------------------------
-// A staged item's real NAS path, as it exists on THIS computer (same volume names as the host).
+// A staged item's real NAS path, as it exists on THIS computer.
+// The server stores the host's spelling (/Volumes/EDIT/NEWS/a.mxf). On this computer the same share may be
+// mounted under a different folder name: macOS adds a suffix when the name is already taken (EDIT -> EDIT-1,
+// EDIT 2, EDIT_3). Resolution order for each path:
+//   1. config.json "volumeMap" (optional manual override), e.g. { "EDIT": "/Volumes/EDIT-1" }
+//   2. a folder in the volumes root with the exact name, then renamed copies (EDIT-1 ...)
+// The first candidate where the FILE really exists wins, so a stale empty EDIT folder is skipped.
 // Only /Volumes/<share>/... is honoured (C:\Volumes\<share>\... on Windows); anything else is ignored.
-function realNasPath(t) {
-  if (typeof t !== 'string' || !t || t.includes('\0')) return null;
-  const parts = t.replace(/\\/g, '/').split('/').filter(Boolean);
-  if (parts.length && /^[A-Za-z]:$/.test(parts[0])) parts.shift();       // C:/Volumes/... (a Windows host) -> Volumes/...
-  if (parts.length < 3 || parts[0] !== 'Volumes' || parts.some((p) => p === '..' || p === '.')) return null;
-  return IS_WIN ? 'C:\\' + parts.join('\\') : '/' + parts.join('/');
+const AD = adapter(process.platform);
+let _namesCache = { at: 0, names: [] };
+function localVolumeNames() {
+  if (Date.now() - _namesCache.at < 2000) return _namesCache.names;      // one readdir per drag, not one per clip
+  let names = [];
+  try {
+    names = fs.readdirSync(AD.volumesRoot(), { withFileTypes: true })
+      .filter((d) => d.isDirectory() || d.isSymbolicLink()).map((d) => d.name);
+  } catch (e) { /* no volumes folder: nothing mounted */ }
+  _namesCache = { at: Date.now(), names };
+  return names;
+}
+
+// -> { path, tried[] }.  path = existing file on this computer, or null.  tried = folders looked at (for the error text).
+function resolveNas(t) {
+  const parsed = parseHostPath(t);
+  if (!parsed) return { path: null, tried: [] };
+  const roots = [];
+  const override = cfg.volumeMap && typeof cfg.volumeMap === 'object'
+    ? Object.keys(cfg.volumeMap).find((k) => k.toLowerCase() === parsed.volume.toLowerCase()) : null;
+  if (override && typeof cfg.volumeMap[override] === 'string' && AD.isAbsolute(cfg.volumeMap[override])) {
+    roots.push(cfg.volumeMap[override]);
+  }
+  const root = AD.volumesRoot();
+  detect(parsed.volume, localVolumeNames()).candidates.forEach((n) => roots.push(AD.join(root, [n])));
+  if (!roots.length) roots.push(AD.join(root, [parsed.volume]));        // nothing mounted: report the expected folder
+  const tried = [];
+  for (const r of [...new Set(roots)]) {
+    const full = AD.join(r, parsed.rest);
+    tried.push(r);
+    if (fs.existsSync(full)) return { path: full, tried };
+  }
+  return { path: null, tried };
+}
+
+// Kept for the callers below: the local path of the real file, or null if it is not reachable from here.
+function realNasPath(t) { return resolveNas(t).path; }
+
+// Explains a failed lookup using the first clip: which share it needs and which folders were checked.
+function nasHint(paths) {
+  const first = (Array.isArray(paths) ? paths : [paths]).find((p) => parseHostPath(p));
+  if (!first) return 'The clip path is not a /Volumes/<share>/... path.';
+  const parsed = parseHostPath(first);
+  const r = resolveNas(first);
+  return 'Share "' + parsed.volume + '" was looked for in: ' + r.tried.join(', ') + '. ' +
+    'Check that the NAS share is mounted (a renamed mount such as ' + parsed.volume + '-1 is accepted), ' +
+    'or set "volumeMap" in config.json.';
 }
 
 const LOCAL_ROOT = cfg.localFolder || path.join(os.homedir(), 'ClipStage');
@@ -155,9 +203,8 @@ ipcMain.on('clipstage-start-drag', (event, editor, filenames, targets) => {
       if (dir && fs.existsSync(path.join(dir, f))) files.push(path.join(dir, f));
     });
     if (!files.length) {
-      return fail('No clip file found on this computer. The NAS volumes must be mounted under the same names as on ' +
-        'the ClipStage machine (e.g. /Volumes/EDIT, /Volumes/PLAYOUT). ' +
-        (dir ? 'Staging folder: ' + dir : 'The staging share is not mounted either.'));
+      return fail('No clip file found on this computer. ' + nasHint(tl) +
+        (dir ? ' Staging folder: ' + dir : ' The staging share is not mounted either.'));
     }
     if (dragIcon.isEmpty()) return fail('Drag icon failed to load.');
     event.sender.startDrag({ files, file: files[0], icon: dragIcon });
@@ -193,8 +240,7 @@ ipcMain.on('clipstage-start-drag-paths', (event, paths) => {
       if (real && fs.existsSync(real)) files.push(real);
     }
     if (!files.length) {
-      return fail('No clip file found on this computer. The NAS volumes must be mounted under the same names as on ' +
-        'the ClipStage machine (e.g. /Volumes/EDIT, /Volumes/PLAYOUT).');
+      return fail('No clip file found on this computer. ' + nasHint(list));
     }
     if (dragIcon.isEmpty()) return fail('Drag icon failed to load.');
     event.sender.startDrag({ files, file: files[0], icon: dragIcon });

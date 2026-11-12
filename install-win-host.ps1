@@ -778,7 +778,7 @@ function Step-EditorKit {
     Copy-Item -LiteralPath (Join-Path $Dest 'install-win-editor.ps1') -Destination $kit
     $app = Join-Path $kit 'clipstage-fcp-drag'
     New-Item -ItemType Directory -Path $app -Force | Out-Null
-    foreach ($f in 'main.js', 'preload.js', 'package.json', 'config.json') {
+    foreach ($f in 'main.js', 'pathmap.js', 'preload.js', 'package.json', 'config.json') {
         Copy-Item -LiteralPath (Join-Path $Dest "clipstage-fcp-drag\$f") -Destination $app
     }
     $ip = Get-ClipEnv 'CLIPSTAGE_SMB_HOST'
