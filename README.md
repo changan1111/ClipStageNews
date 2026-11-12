@@ -495,8 +495,10 @@ real browser. See the "Verify" section of either install guide for the one-time 
 - A clip's ID is a hash of its path: moving or renaming a folder creates new clips without their
   notes.
 - Previews are live transcodes: no seeking. Prebuilt proxies would fix this.
-- No automatic token refresh: editors sign in again when the Supabase token expires (default one
-  hour; raise it in the Supabase Auth settings if editors are interrupted).
+- Sessions renew silently: the Supabase access token (default one hour) is refreshed in the
+  background using an HttpOnly refresh cookie (`CLIPSTAGE_REFRESH_DAYS`, default 7). Editors only
+  sign in again when that cookie expires, the account's `valid_through` date passes, or they log
+  out. Keep Supabase's "Detect and revoke potentially compromised refresh tokens" enabled.
 - Edit locks, login rate-limits and the login cache live in memory, so run a **single** uvicorn
   worker (the launch script does).
 - The UI builds pages from template strings; output is escaped, but a component rewrite would be

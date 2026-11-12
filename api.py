@@ -72,6 +72,13 @@ SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
 
 ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("CLIPSTAGE_ALLOWED_ORIGINS", "").split(",") if o.strip()]
 FORCE_SECURE_COOKIE = os.environ.get("CLIPSTAGE_COOKIE_SECURE", "") == "1"
+# How long a browser may stay signed in without typing the password again (silent token refresh).
+# Still capped by the account's valid_through date and by Supabase's own refresh-token rules.
+REFRESH_COOKIE = "clipstage_refresh_token"
+try:
+    REFRESH_COOKIE_DAYS = max(1, int(os.environ.get("CLIPSTAGE_REFRESH_DAYS", "7")))
+except ValueError:
+    REFRESH_COOKIE_DAYS = 7
 ENABLE_DOCS = os.environ.get("CLIPSTAGE_DOCS", "") == "1"
 MAX_STREAMS = int(os.environ.get("CLIPSTAGE_MAX_STREAMS", "3"))
 MAX_RESULTS = int(os.environ.get("CLIPSTAGE_MAX_RESULTS", "2000"))
@@ -303,7 +310,7 @@ app = FastAPI(
     openapi_url="/openapi.json" if ENABLE_DOCS else None,
 )
 
-PUBLIC_PATHS = {"/", "/health", "/auth/login", "/auth/logout", "/static/indexer_status.js"}
+PUBLIC_PATHS = {"/", "/health", "/auth/login", "/auth/logout", "/auth/refresh", "/static/indexer_status.js"}
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
 CSP = ("default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; "
@@ -354,6 +361,75 @@ def _cookie_secure(request: Request) -> bool:
     return FORCE_SECURE_COOKIE or request.url.scheme == "https"
 
 
+def _capped_expiry(session: dict, valid_through: date):
+    """(seconds the access token may live, the moment the account stops being valid)."""
+    valid_until = datetime.combine(valid_through + timedelta(days=1), datetime_time.min, tzinfo=timezone.utc)
+    try:
+        expires_in = int(session.get("expires_in", 3600))
+    except (TypeError, ValueError):
+        expires_in = 3600
+    expires_in = max(0, min(expires_in, int((valid_until - datetime.now(timezone.utc)).total_seconds())))
+    return expires_in, valid_until
+
+
+def _set_session_cookies(out, request: Request, token: str, refresh_token, expires_in: int, valid_until: datetime):
+    secure = _cookie_secure(request)
+    out.set_cookie("clipstage_access_token", token, max_age=expires_in, httponly=True,
+                   secure=secure, samesite="lax", path="/")
+    if refresh_token:
+        remaining = max(0, int((valid_until - datetime.now(timezone.utc)).total_seconds()))
+        # path="/auth" -> the browser sends this cookie only to the auth endpoints, never with
+        # clip/stream/search requests.
+        out.set_cookie(REFRESH_COOKIE, str(refresh_token), max_age=min(REFRESH_COOKIE_DAYS * 86400, remaining),
+                       httponly=True, secure=secure, samesite="lax", path="/auth")
+
+
+def _clear_session_cookies(out, request: Request):
+    secure = _cookie_secure(request)
+    out.delete_cookie("clipstage_access_token", path="/", httponly=True, secure=secure, samesite="lax")
+    out.delete_cookie(REFRESH_COOKIE, path="/auth", httponly=True, secure=secure, samesite="lax")
+
+
+@app.post("/auth/refresh")
+def refresh_session(request: Request):
+    """Silent re-login: swap the refresh cookie for a fresh access token (Supabase rotates the
+    refresh token on every use, so the new one is stored too). Public path because the access
+    cookie is usually already expired when this is called - so the CSRF header is checked here."""
+    if not request.headers.get(CSRF_HEADER):
+        raise HTTPException(status_code=403, detail="Missing CSRF header")
+    old_refresh = request.cookies.get(REFRESH_COOKIE, "")
+    if not old_refresh:
+        raise HTTPException(status_code=401, detail="No refresh token - please sign in")
+    response = _supabase_request("POST", "/auth/v1/token?grant_type=refresh_token",
+                                 json={"refresh_token": old_refresh})
+    if response.status_code in (400, 401, 403):       # revoked / reused / expired refresh token
+        out = JSONResponse(status_code=401, content={"detail": "Session ended - please sign in again"})
+        _clear_session_cookies(out, request)
+        return out
+    if response.status_code != 200:                    # Supabase hiccup: keep the cookie, try later
+        raise HTTPException(status_code=503, detail="Supabase refresh failed")
+    try:
+        session = response.json()
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail="Invalid response from Supabase") from exc
+    user = session.get("user") if isinstance(session, dict) else None
+    token = session.get("access_token") if isinstance(session, dict) else None
+    if not token or not isinstance(user, dict) or not user.get("id"):
+        raise HTTPException(status_code=503, detail="Supabase did not return a session")
+    profile = _read_profile(str(user["id"]), token)
+    if not profile:                                    # role removed or valid_through passed
+        out = JSONResponse(status_code=403, content={"detail": "Account role or valid-through date is missing or expired"})
+        _clear_session_cookies(out, request)
+        return out
+    role, valid_through, editor_name = profile
+    expires_in, valid_until = _capped_expiry(session, valid_through)
+    result = {"username": user.get("email", ""), "role": role, "expires_in": expires_in,
+              "valid_through": valid_through.isoformat(), "editor_name": editor_name}
+    out = JSONResponse(content=result)
+    _set_session_cookies(out, request, token, session.get("refresh_token") or old_refresh, expires_in, valid_until)
+    return out
+
+
 @app.post("/auth/login")
 def login(request: Request, payload: dict = Body(...)):
     email = str(payload.get("email", "")).strip().lower()
@@ -382,20 +458,13 @@ def login(request: Request, payload: dict = Body(...)):
     if not profile:
         raise HTTPException(status_code=403, detail="Account role or valid-through date is missing or expired")
     role, valid_through, editor_name = profile
-    now = datetime.now(timezone.utc)
-    valid_until = datetime.combine(valid_through + timedelta(days=1), datetime_time.min, tzinfo=timezone.utc)
-    try:
-        expires_in = int(session.get("expires_in", 3600))
-    except (TypeError, ValueError):
-        expires_in = 3600
-    expires_in = max(0, min(expires_in, int((valid_until - now).total_seconds())))
+    expires_in, valid_until = _capped_expiry(session, valid_through)
     _LOGIN_FAILS.pop(rl_key, None)
     store.audit(user.get("email", email), "login", role)
     result = {"username": user.get("email", email), "role": role, "expires_in": expires_in,
               "valid_through": valid_through.isoformat(), "editor_name": editor_name}
     out = JSONResponse(content=result)
-    out.set_cookie("clipstage_access_token", token, max_age=expires_in, httponly=True,
-                   secure=_cookie_secure(request), samesite="lax", path="/")
+    _set_session_cookies(out, request, token, session.get("refresh_token"), expires_in, valid_until)
     return out
 
 
@@ -412,8 +481,7 @@ def logout(request: Request):
         except Exception:
             pass
     out = JSONResponse(content={"ok": True})
-    out.delete_cookie("clipstage_access_token", path="/", httponly=True,
-                      secure=_cookie_secure(request), samesite="lax")
+    _clear_session_cookies(out, request)
     return out
 
 

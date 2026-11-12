@@ -66,6 +66,11 @@ def fake_request(method, url, headers=None, timeout=None, **kw):
     if url.endswith("/auth/v1/logout"):
         LOGOUT_CALLS.append(tok)
         return Resp(204, {})
+    if "grant_type=refresh_token" in url:
+        if kw["json"]["refresh_token"] == "badref":
+            return Resp(400, {})
+        return Resp(200, {"access_token": "admintok", "refresh_token": "newref", "expires_in": 3600,
+                          "user": {"id": "a", "email": "admin@x.com"}})
     if "grant_type=password" in url:
         if kw["json"]["email"] in BAD_LOGINS:
             return Resp(400, {})
@@ -230,6 +235,40 @@ def test_logout_clears_cookie_and_revokes_supabase_session(env):
     assert LOGOUT_CALLS == ["admintok"]                               # session ended at Supabase too
     assert "clipstage_access_token" in res.headers.get("set-cookie", "")   # cookie cleared
     assert api._ID_CACHE == {}                                             # not trusted from cache any more
+
+
+def test_refresh_issues_new_cookies_and_rotates_refresh_token(env):
+    c, *_ = env
+    c.cookies.set("clipstage_refresh_token", "oldref", path="/auth")
+    res = c.post("/auth/refresh", headers=H)
+    assert res.status_code == 200
+    body = res.json()
+    assert body["role"] == "admin" and body["expires_in"] > 0
+    cookies = res.headers.get("set-cookie", "")
+    assert "clipstage_access_token=admintok" in cookies
+    assert "clipstage_refresh_token=newref" in cookies and "Path=/auth" in cookies
+
+
+def test_refresh_needs_csrf_header_and_cookie(env):
+    c, *_ = env
+    c.cookies.set("clipstage_refresh_token", "oldref", path="/auth")
+    assert c.post("/auth/refresh").status_code == 403                 # no CSRF header
+    c.cookies.clear()
+    assert c.post("/auth/refresh", headers=H).status_code == 401      # no refresh cookie
+
+
+def test_refresh_rejected_token_clears_cookies(env):
+    c, *_ = env
+    c.cookies.set("clipstage_refresh_token", "badref", path="/auth")
+    res = c.post("/auth/refresh", headers=H)
+    assert res.status_code == 401
+    assert "clipstage_refresh_token" in res.headers.get("set-cookie", "")   # cleared
+
+
+def test_logout_also_clears_refresh_cookie(env):
+    c, *_ = env
+    res = c.post("/auth/logout")
+    assert "clipstage_refresh_token" in res.headers.get("set-cookie", "")
 
 
 def test_login_rate_limit(env):

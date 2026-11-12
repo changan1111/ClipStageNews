@@ -1390,6 +1390,7 @@ function clearStoredSession() {
 }
 
 function showAuthGate(message, clearCookie = false) {
+  clearTimeout(refreshTimer);
   clearStoredSession();
   window.clipstageAuthenticated = false;
   authGate.hidden = false;
@@ -1400,8 +1401,67 @@ function showAuthGate(message, clearCookie = false) {
   requestAnimationFrame(() => authEmail.focus());
 }
 
-const publicFetchPaths = new Set(['/', '/health', '/auth/login', '/auth/logout', '/static/indexer_status.js']);
-window.fetch = function(input, init) {
+// ── SILENT SESSION REFRESH ────────────────────────────────────────────────────
+// The access token lives ~1 hour. A long-lived refresh cookie (HttpOnly, only sent to /auth/*)
+// lets us get a new one without asking for the password again.
+let refreshPromise = null;
+let refreshTimer = null;
+const REFRESH_EARLY_SECONDS = 120;   // renew this long before the access token runs out
+
+function storeSessionResult(result) {
+  localStorage.removeItem('clipstage_token');
+  localStorage.setItem('clipstage_token_exp', String(Math.floor(Date.now() / 1000) + result.expires_in));
+  localStorage.setItem('clipstage_token_user', result.username || localStorage.getItem('clipstage_token_user') || '');
+  localStorage.setItem('clipstage_token_role', result.role);
+  localStorage.setItem('clipstage_token_valid_through', result.valid_through);
+}
+
+// Resolves to 'ok' (new token stored), 'denied' (must sign in again) or 'error' (network / server
+// hiccup - the session may still be fine, so do NOT sign the person out for this).
+function refreshSession() {
+  if (refreshPromise) return refreshPromise;           // several requests failing at once share one refresh
+  refreshPromise = (async () => {
+    try {
+      const res = await nativeFetch('/auth/refresh', { method: 'POST', headers: { 'X-ClipStage-CSRF': '1' } });
+      if (res.status === 401 || res.status === 403) return 'denied';
+      if (!res.ok) return 'error';
+      storeSessionResult(await res.json());
+      scheduleRefresh();
+      return 'ok';
+    } catch (e) {
+      return 'error';
+    }
+  })();
+  const clear = () => { refreshPromise = null; };
+  refreshPromise.then(clear, clear);
+  return refreshPromise;
+}
+
+function scheduleRefresh() {
+  clearTimeout(refreshTimer);
+  const msLeft = Number(localStorage.getItem('clipstage_token_exp') || 0) * 1000 - Date.now();
+  if (msLeft <= 0) return;
+  // Normally 2 minutes early; for very short token lifetimes, halfway through.
+  const wait = Math.max(5000, Math.min(msLeft - REFRESH_EARLY_SECONDS * 1000, msLeft / 2));
+  refreshTimer = setTimeout(async () => {
+    if (!window.clipstageAuthenticated) return;
+    const r = await refreshSession();
+    if (r === 'denied') showAuthGate('Your session ended. Please sign in again.', true);
+    else if (r === 'error') { clearTimeout(refreshTimer); refreshTimer = setTimeout(scheduleRefresh, 30000); }
+  }, wait);
+}
+
+// Timers are paused while a laptop sleeps or a tab is in the background, so also check on return.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !window.clipstageAuthenticated) return;
+  const msLeft = Number(localStorage.getItem('clipstage_token_exp') || 0) * 1000 - Date.now();
+  if (msLeft < REFRESH_EARLY_SECONDS * 1000) {
+    refreshSession().then(r => { if (r === 'denied') showAuthGate('Your session ended. Please sign in again.', true); });
+  }
+});
+
+const publicFetchPaths = new Set(['/', '/health', '/auth/login', '/auth/logout', '/auth/refresh', '/static/indexer_status.js']);
+window.fetch = async function(input, init) {
   const requestUrl = new URL(input instanceof Request ? input.url : input, window.location.href);
   const isPublicRequest = requestUrl.origin !== window.location.origin || publicFetchPaths.has(requestUrl.pathname);
   let requestInit = init;
@@ -1411,12 +1471,22 @@ window.fetch = function(input, init) {
     headers.set('X-ClipStage-CSRF', '1');
     requestInit = Object.assign({}, init || {}, { headers });
   }
-  return nativeFetch(input, requestInit).then(response => {
-    if (response.status === 401 && !isPublicRequest) {
+  const retryInput = (input instanceof Request && !isPublicRequest) ? input.clone() : input;
+  let response = await nativeFetch(input, requestInit);
+  if (response.status === 401 && !isPublicRequest) {
+    // Access token ran out: renew it quietly and repeat the request once.
+    const outcome = await refreshSession();
+    if (outcome === 'ok') {
+      response = await nativeFetch(retryInput, requestInit);
+    } else if (outcome === 'denied') {
+      showAuthGate('Your session expired or is no longer active. Please sign in again.', true);
+      return response;
+    }
+    if (response.status === 401 && outcome === 'ok') {
       showAuthGate('Your session expired or is no longer active. Please sign in again.', true);
     }
-    return response;
-  });
+  }
+  return response;
 };
 
 // Header: who is signed in + Log out. Always rendered here (not by indexer_status.js).
@@ -1461,6 +1531,7 @@ function startClipstageApp() {
     init();
   }
   renderUserBox();
+  scheduleRefresh();
   syncSessionFromServer();
   if (window.clipstageRefreshIndexerAuth) window.clipstageRefreshIndexerAuth();
   if (window.clipstageStartIndexerStatus) window.clipstageStartIndexerStatus();
@@ -1473,6 +1544,7 @@ window.clipstageShowLogin = function() {
 window.clipstageLogout = async function() {
   // Ask the server to end the session (clears the cookie and revokes it at Supabase),
   // wipe what this browser saved, then reload so no clip data stays on screen.
+  clearTimeout(refreshTimer);
   try { await nativeFetch('/auth/logout', { method: 'POST' }); } catch (e) { /* still sign out locally */ }
   clearStoredSession();
   try { sessionStorage.setItem('clipstage_signed_out', '1'); } catch (e) {}
@@ -1492,11 +1564,7 @@ authForm.addEventListener('submit', async event => {
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.detail || 'Sign-in failed');
-    localStorage.removeItem('clipstage_token');
-    localStorage.setItem('clipstage_token_exp', String(Math.floor(Date.now() / 1000) + result.expires_in));
-    localStorage.setItem('clipstage_token_user', result.username);
-    localStorage.setItem('clipstage_token_role', result.role);
-    localStorage.setItem('clipstage_token_valid_through', result.valid_through);
+    storeSessionResult(result);
     authPassword.value = '';
     if (appStarted) {
       window.location.reload();
@@ -2787,13 +2855,14 @@ async function checkConflictsBeforeStage(paths) {
   } catch(e) { return true; }
 }
 
-if (getStoredSession()) {
-  startClipstageApp();
-} else {
+(async function bootAuth() {
+  if (getStoredSession()) { startClipstageApp(); return; }
   let signedOut = false;
   try { signedOut = sessionStorage.getItem('clipstage_signed_out') === '1'; sessionStorage.removeItem('clipstage_signed_out'); } catch (e) {}
+  // Token expired while the tab was closed? Try the refresh cookie before asking for a password.
+  if (!signedOut && (await refreshSession()) === 'ok' && getStoredSession()) { startClipstageApp(); return; }
   showAuthGate(signedOut ? 'You have been signed out.' : 'Sign in with your newsroom account to continue.', true);
-}
+})();
 </script>
 <!-- VIDEO PLAYER MODAL -->
 <div id="playerModal" onclick="if(event.target===this)closePlayer()">
